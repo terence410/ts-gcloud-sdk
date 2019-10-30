@@ -6,7 +6,7 @@ import {GcloudLogging} from "./GcloudLogging";
 import {GcloudOrganizations} from "./GcloudOrganizations";
 import {GcloudProjects} from "./GcloudProjects";
 import {GcloudSchedulerJobs} from "./GcloudSchedulerJobs";
-import {IProjectOptions} from "./gcloudSdk";
+import {IProjectOptions} from "./GcloudSdk";
 
 export class Gcloud {
     public regions = regions;
