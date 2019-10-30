@@ -13,7 +13,7 @@
     "test projects": "mocha --exit --timeout 120000 -r ts-node/register tests/projects.test.ts",
     "test logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
     "build": "tsc",
-    "patch": "npm versoin patch"
+    "patch": "npm version patch"
   },
   "dependencies": {
     "debug": "^4.1.1",
