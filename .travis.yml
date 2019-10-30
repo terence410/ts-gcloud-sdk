@@ -3,10 +3,10 @@ node_js:
   - "10"
 jobs:
   include:
-    - stage: custom test
+    - stage: development
       if: branch in (development)
     - stage: npm release
-      if: tag IS present
+      if: branch = master
       before_deploy:
       - npm run build
       deploy:

@@ -1,6 +1,6 @@
 {
   "name": "ts-gcloud-sdk",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Google Cloud SDK functional wrapper written in TypeScript. Useful for automation and integration.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
