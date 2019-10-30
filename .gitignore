@@ -9,7 +9,6 @@ yarn-error.log*
 lerna-debug.log*
 
 ### Custom
-/tests/variables.ts
 /build
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
