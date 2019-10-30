@@ -1,10 +1,10 @@
 import Debug from "debug";
 import * as fs from "fs";
-import * as configs from "./enums/configs";
 import {Gcloud} from "./Gcloud";
 import {ChildProcessHelper} from "./helpers/ChildProcessHelper";
 
 const debug = Debug("gcloud");
+const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export type IProjectOptions = {
     cwd?: string,
@@ -39,12 +39,12 @@ export class GcloudSdk {
     }
 
     public async login(): Promise<boolean> {
-        const result = await new ChildProcessHelper(configs.commandPath, ["auth", "list"]).exec();
+        const result = await new ChildProcessHelper(sdkPath, ["auth", "list"]).exec();
         let isSignedIn = false;
         
         if (!/Credentialed Accounts/.test(result.stdout)) {
             console.log("Please login to Google Cloud");
-            const loginResult = await new ChildProcessHelper(configs.commandPath, ["auth", "login"]).exec();
+            const loginResult = await new ChildProcessHelper(sdkPath, ["auth", "login"]).exec();
 
             // try to check both stdout/stderr for login data
             const regex = /You are now logged in as \[(.*)\]/;
@@ -73,7 +73,7 @@ export class GcloudSdk {
 
     public async logout() {
         try {
-            const result = await new ChildProcessHelper(configs.commandPath, ["auth", "revoke"]).exec();
+            const result = await new ChildProcessHelper(sdkPath, ["auth", "revoke"]).exec();
             const results = result.stdout.split("\r\n");
             for (const line of results.splice(1)) {
                 const matches = line.match(/- (.*)/);
@@ -89,7 +89,7 @@ export class GcloudSdk {
     }
 
     public async help() {
-        return await new ChildProcessHelper(configs.commandPath, ["--help"]).exec();
+        return await new ChildProcessHelper(sdkPath, ["--help"]).exec();
     }
 
     private _validateProjectOptions(options: IProjectOptions) {

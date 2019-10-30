@@ -1,19 +1,7 @@
-# ts-gcloud-sdk
-
-Google Cloud SDK functional wrapper written in TypeScript. Useful for automation and integration.
-
-# Settings
-- If your sdk it not added to path, you can specific the env variable to point to the path directly
-  - export GCP_SDK_PATH=gcloud  
-
-# Example Usage
-
-```typescript
-
 import {GcloudSdk} from "./src";
 
 async function main() {
-    const gcloud = await new GcloudSdk("project-name").init();
+    const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME).init();
     const functions = gcloud.functions();
 
     const help = await functions.help();
@@ -41,5 +29,3 @@ async function main() {
         });
     await functions.delete(name, {region});
 }
-
-```

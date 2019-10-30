@@ -1,12 +1,11 @@
 import * as child_process from "child_process";
 import Debug from "debug";
+const debug = Debug("gcloud");
 
 export type IInteractive = {
     match: string | RegExp;
     respond: string;
 };
-
-const debug = Debug("gcloud");
 
 export class ChildProcessHelper {
     private _execOptions: object;

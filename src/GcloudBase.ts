@@ -1,14 +1,13 @@
 import Debug from "debug";
-import * as configs from "./enums/configs";
 import {IProjectOptions} from "./GcloudSdk";
 import {IInteractive} from "./helpers/ChildProcessHelper";
 import {ChildProcessHelper} from "./helpers/ChildProcessHelper";
 import {camelToDash, camelToSnakeCapitalize, escapeQuotes} from "./utils";
 
 const debug = Debug("gcloud");
-export class GcloudBase {
-    // protected _params: string[] = [];
+const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
+export class GcloudBase {
     constructor(public readonly project: string, private _product: string, private _options: IProjectOptions = {}) {
     }
 
@@ -30,7 +29,7 @@ export class GcloudBase {
         params = [this._product, ...params, "--project", this.project];
 
         try {
-            const result = await new ChildProcessHelper(configs.commandPath, params, this._options)
+            const result = await new ChildProcessHelper(sdkPath, params, this._options)
                 .exec();
             return result.stdout || result.stderr;
 
@@ -46,7 +45,7 @@ export class GcloudBase {
         params = [this._product, "--project", this.project, ...params];
 
         try {
-            const result = await new ChildProcessHelper(configs.commandPath, params, this._options)
+            const result = await new ChildProcessHelper(sdkPath, params, this._options)
                 .execInteractive(interactives, initStdin);
             return result.stdout || result.stderr;
 
