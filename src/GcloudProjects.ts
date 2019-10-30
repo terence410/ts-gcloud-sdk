@@ -1,0 +1,28 @@
+// https://cloud.google.com/sdk/gcloud/reference/projects
+
+import {GcloudBase} from "./GcloudBase";
+
+type IListResult = {
+    projectId: string,
+    name: string,
+    projectNumber: string,
+};
+
+// argv
+
+type IListArgv = {
+    limit?: number,
+    pageSize?: number,
+};
+
+export class GcloudProjects extends GcloudBase {
+    public async list(argv: IListArgv = {}) {
+        const table = await this._quickExec("list", "", argv);
+        const headers = ["projectId", "name", "projectNumber"];
+        return this._parseTable(table, headers) as IListResult[];
+    }
+
+    public async describe(name: string) {
+        return await this._quickExec("describe", name);
+    }
+}
