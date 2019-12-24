@@ -4,7 +4,7 @@ node_js:
 jobs:
   include:
     - stage: development
-      if: branch in (development)
+      if: branch in (develop)
     - stage: npm release
       if: branch = master
       before_deploy:
