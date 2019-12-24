@@ -11,6 +11,7 @@
     "test schedulerJobs": "mocha --exit --timeout 120000 -r ts-node/register tests/schedulerJobs.test.ts",
     "test organizations": "mocha --exit --timeout 120000 -r ts-node/register tests/organizations.test.ts",
     "test projects": "mocha --exit --timeout 120000 -r ts-node/register tests/projects.test.ts",
+    "test datastore": "mocha --exit --timeout 120000 -r ts-node/register tests/datastore.test.ts",
     "test logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
     "build": "tsc",
     "patch": "npm version patch"

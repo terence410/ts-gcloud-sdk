@@ -1,6 +1,7 @@
 import {httpMethods} from "./enums/httpMethods";
 import {regions} from "./enums/regions";
 import {timeZones} from "./enums/timeZones";
+import {GcloudDatastore} from "./GcloudDatastore";
 import {GcloudFunctions} from "./GcloudFunctions";
 import {GcloudLogging} from "./GcloudLogging";
 import {GcloudOrganizations} from "./GcloudOrganizations";
@@ -35,5 +36,9 @@ export class Gcloud {
 
     public schedulerJobs() {
         return new GcloudSchedulerJobs(this.project, "scheduler jobs", this._options);
+    }
+
+    public datastore() {
+        return new GcloudDatastore(this.project, "datastore", this._options);
     }
 }

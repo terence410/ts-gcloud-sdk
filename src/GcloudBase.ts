@@ -17,7 +17,7 @@ export class GcloudBase {
 
     // region protected methods
 
-    protected async _quickExec(type: string, value: string, argv: {[key: string]: any} = {}): Promise<string> {
+    protected async _quickExec(type: string, value: string = "", argv: {[key: string]: any} = {}): Promise<string> {
         const params: string[] = [];
         this._addParam(params, type, value);
         this._addArgv(params, argv);
@@ -39,14 +39,15 @@ export class GcloudBase {
         }
     }
 
-    protected async _execInteractive(params: string[] = [], interactives: IInteractive[], initStdin?: string):
+    protected async _execInteractive(params: string[] = [], interactives: IInteractive[],
+                                     options: {initStdin?: string, sendNewLineOnStderr?: boolean} = {}):
         Promise<string> {
         // update the params
         params = [this._product, "--project", this.project, ...params];
 
         try {
             const result = await new ChildProcessHelper(sdkPath, params, this._options)
-                .execInteractive(interactives, initStdin);
+                .execInteractive(interactives, options);
             return result.stdout || result.stderr;
 
         } catch (err) {

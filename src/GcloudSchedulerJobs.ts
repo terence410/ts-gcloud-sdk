@@ -77,7 +77,7 @@ export class GcloudSchedulerJobs extends GcloudBase {
     public async delete(name: string) {
         const params: string[] = [];
         this._addParam(params, "delete", name);
-        return await this._execInteractive(params, [{match: "", respond: "Y"}], "\n");
+        return await this._execInteractive(params, [{match: "", respond: "Y"}], {initStdin: "\n"});
     }
 
     public async describe(name: string): Promise<string | undefined> {

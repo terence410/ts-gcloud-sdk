@@ -10,10 +10,6 @@ export type IProjectOptions = {
     cwd?: string,
 };
 
-export type types = {
-    projectOptions: IProjectOptions,
-};
-
 export class GcloudSdk {
     constructor(public readonly project: string = "", private _options: IProjectOptions = {}) {
         //
@@ -43,7 +39,7 @@ export class GcloudSdk {
         let isSignedIn = false;
         
         if (!/Credentialed Accounts/.test(result.stdout)) {
-            console.log("Please login to Google Cloud");
+            debug("Please login to Google Cloud");
             const loginResult = await new ChildProcessHelper(sdkPath, ["auth", "login"]).exec();
 
             // try to check both stdout/stderr for login data
@@ -54,7 +50,7 @@ export class GcloudSdk {
             }
 
             if (matches) {
-                console.log(`You are signed in as ${matches[1]}.`);
+                debug(`You are signed in as ${matches[1]}.`);
                 isSignedIn = true;
             }
         } else {
@@ -62,7 +58,7 @@ export class GcloudSdk {
             for (const line of listResults.splice(2)) {
                 const matches = line.match(/\*[ ]*(.*)/);
                 if (matches) {
-                    console.log(`You already signed in as ${matches[1]}.`);
+                    debug(`You already signed in as ${matches[1]}.`);
                     isSignedIn = true;
                 }
             }

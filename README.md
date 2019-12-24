@@ -3,17 +3,28 @@
 Google Cloud SDK functional wrapper written in TypeScript. Useful for automation and integration.
 
 # Settings
-- If your sdk it not added to path, you can specific the env variable to point to the path directly
-  - export GCP_SDK_PATH=gcloud  
+- GCP_SDK_PATH 
+  - If your sdk it not added to path, you can specific the env variable to point to the path directly
+  - export GCP_SDK_PATH=C:\Program Files\google-cloud-sdk\bin\gcloud
+- DEBUG=gcloud
+  - show all the logs and commands of the sdk
 
-# Example Usage
+# Quick Start
 
 ```typescript
+import {GcloudSdk} from "./ts-gcloud-sdk";
+async function quickStart() {
+    const gcloudSDK = await new GcloudSdk("project-name");
+    const help = await gcloudSDK.help();
+    const gcloud = gcloudSDK.init();
+}
+```
 
-import {GcloudSdk} from "./src";
-
-async function main() {
-    const gcloud = await new GcloudSdk("project-name").init();
+# Functions
+```typescript
+async function functions() {
+    const gcloudSDK = await new GcloudSdk("project-name");
+    const gcloud = await gcloudSDK.init();
     const functions = gcloud.functions();
 
     const help = await functions.help();
@@ -41,5 +52,28 @@ async function main() {
         });
     await functions.delete(name, {region});
 }
+```
 
+# Organizations
+```typescript
+async function cloudOrganizations() {
+    const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME).init();
+    const organizations = gcloud.organizations();
+    const list = await organizations.list();
+    for (const item of list) {
+        const describe = await organizations.describe(item.id);
+        console.log(describe);
+    }
+}
+```
+
+# Datastore
+```typescript
+async function cloudDatastore() {
+    const gcloud = await new GcloudSdk("project-name").init();
+    const datastore = gcloud.datastore();
+    const listResult = await datastore.listIndexes();
+    const createResult = await datastore.createIndexes("./index.yaml");
+    const cleanupResult = await datastore.cleanupIndexes("./index.yaml");
+}
 ```
