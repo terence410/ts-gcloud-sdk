@@ -26,7 +26,7 @@ export class GcloudBase {
 
     protected async _exec(params: string[] = []): Promise<string> {
         // update the params
-        params = [this._product, ...params, "--project", this.project];
+        params = [this._product, ...params, "--project", this.project, "--quiet"];
 
         try {
             const result = await new ChildProcessHelper(sdkPath, params, this._options)

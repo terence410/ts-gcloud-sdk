@@ -18,16 +18,12 @@ type IListArgv = {
 export class GcloudDatastore extends GcloudBase {
     public async createIndexes(filename: string) {
         const params: string[] = [];
-        this._addParam(params, "indexes create", filename);
-        return await this._execInteractive(params, [{match: "Do you want to", respond: "Y"}],
-            {initStdin: "\n"});
+        return await this._quickExec("indexes create", filename);
     }
 
     public async cleanupIndexes(filename: string) {
         const params: string[] = [];
-        this._addParam(params, "indexes cleanup", filename);
-        return await this._execInteractive(params, [{match: "Do you want to", respond: "Y"}],
-            {initStdin: "\n", sendNewLineOnStderr: true});
+        return await this._quickExec("indexes cleanup", filename);
     }
 
     public async listIndexes() {

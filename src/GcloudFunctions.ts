@@ -84,9 +84,7 @@ export class GcloudFunctions extends GcloudBase {
 
     public async delete(name: string, argv: IDeleteArgv = {}) {
         const params: string[] = [];
-        this._addParam(params, "delete", name);
-        this._addArgv(params, argv);
-        return await this._execInteractive(params, [{match: "", respond: "Y"}], {initStdin: "\n"});
+        return await this._quickExec("delete", name, argv);
     }
 
     public async call(name: string, argv: ICallArgv = {}) {
