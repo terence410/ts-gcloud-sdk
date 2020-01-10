@@ -8,6 +8,7 @@ const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export type IProjectOptions = {
     cwd?: string,
+    keyFilename?: string,
 };
 
 export class GcloudSdk {
@@ -37,20 +38,27 @@ export class GcloudSdk {
     public async login(): Promise<boolean> {
         const result = await new ChildProcessHelper(sdkPath, ["auth", "list"]).exec();
         let isSignedIn = false;
-        
+
         if (!/Credentialed Accounts/.test(result.stdout)) {
-            debug("Please login to Google Cloud");
-            const loginResult = await new ChildProcessHelper(sdkPath, ["auth", "login"]).exec();
+
+            let authResult: string = "";
+            if (this._options.keyFilename) {
+                debug("Logging in with service account");
+                authResult = await this.authWithServiceAccount(this._options.keyFilename);
+            } else {
+                debug("Please login to Google Cloud");
+                authResult = await this.authWithInteractive();
+            }
 
             // try to check both stdout/stderr for login data
-            const regex = /You are now logged in as \[(.*)\]/;
-            let matches = loginResult.stdout.match(regex);
+            const regex = /You are now logged in as \[(.*)\]|service account credentials for: \[(.*)\]/;
+            let matches = authResult.match(regex);
             if (!matches) {
-                matches = loginResult.stderr.match(regex);
+                matches = authResult.match(regex);
             }
 
             if (matches) {
-                debug(`You are signed in as ${matches[1]}.`);
+                debug(`You are signed in as ${matches[1] || matches[2]}.`);
                 isSignedIn = true;
             }
         } else {
@@ -65,6 +73,21 @@ export class GcloudSdk {
         }
 
         return isSignedIn;
+    }
+
+    public async authWithInteractive() {
+        const result = await new ChildProcessHelper(sdkPath, ["auth", "login"]).exec();
+        return result.stderr;
+    }
+
+    public async authWithServiceAccount(keyFilename: string) {
+        const params = [
+            "auth",
+            "activate-service-account",
+            "--key-file=" + keyFilename,
+        ];
+        const result = await new ChildProcessHelper(sdkPath, params).exec();
+        return result.stderr;
     }
 
     public async logout() {

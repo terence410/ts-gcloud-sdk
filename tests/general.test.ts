@@ -10,13 +10,15 @@ describe("general", () => {
         const result = await commandHelper.execInteractive([{match: /Delete \(Y\/N\)/, respond: "Y"}]);
     });
 
-    it("command helper", async () => {
+    it("login with service account", async () => {
+        // open a new session
+        const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME, {keyFilename: process.env.KEY_FILENAME});
+        const gcloud = await gcloudSdk.init();
+    });
+
+    it("login with interactive", async () => {
         const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME);
         await gcloudSdk.logout();
         const gcloud = await gcloudSdk.init();
-
-        // open a new session
-        const gcloudSdk2 = new GcloudSdk(process.env.GCP_PROJECT_NAME);
-        const gcloud2 = await gcloudSdk.init();
     });
 });
