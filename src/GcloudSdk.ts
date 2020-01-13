@@ -12,8 +12,17 @@ export type IProjectOptions = {
 };
 
 export class GcloudSdk {
+    private _credentialEmail: string | undefined;
+
     constructor(public readonly project: string = "", private _options: IProjectOptions = {}) {
-        //
+        if (this._options.keyFilename) {
+            try {
+                const keyJson = JSON.parse(fs.readFileSync(this._options.keyFilename).toString());
+                this._credentialEmail = keyJson.client_email;
+            } catch (err) {
+                throw new Error(`keyFilename ${this._options.keyFilename} not exist / invalid json format`);
+            }
+        }
     }
 
     public async init() {
@@ -39,8 +48,18 @@ export class GcloudSdk {
         const result = await new ChildProcessHelper(sdkPath, ["auth", "list"]).exec();
         let isSignedIn = false;
 
-        if (!/Credentialed Accounts/.test(result.stdout)) {
+        if (/Credentialed Accounts/.test(result.stdout)) {
+            const listResults = result.stdout.split("\r\n");
+            for (const line of listResults.splice(2)) {
+                const matches = line.match(/\*[ ]*(.*)/);
+                if (matches && (!this._credentialEmail || matches[1] === this._credentialEmail)) {
+                    debug(`You already signed in as ${matches[1]}.`);
+                    isSignedIn = true;
+                }
+            }
+        }
 
+        if (!isSignedIn) {
             let authResult: string = "";
             if (this._options.keyFilename) {
                 debug("Logging in with service account");
@@ -60,15 +79,6 @@ export class GcloudSdk {
             if (matches) {
                 debug(`You are signed in as ${matches[1] || matches[2]}.`);
                 isSignedIn = true;
-            }
-        } else {
-            const listResults = result.stdout.split("\r\n");
-            for (const line of listResults.splice(2)) {
-                const matches = line.match(/\*[ ]*(.*)/);
-                if (matches) {
-                    debug(`You already signed in as ${matches[1]}.`);
-                    isSignedIn = true;
-                }
             }
         }
 

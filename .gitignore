@@ -13,6 +13,7 @@ build
 package-lock.json
 index.yaml
 serviceAccount.json
+tests/functions/.gcloudignore
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

@@ -5,7 +5,8 @@ import {GcloudSdk} from "../src/GcloudSdk";
 
 describe("gcloud scheduler jobs", () => {
     it("full test", async () => {
-        const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME).init();
+        const options = {keyFilename: process.env.KEY_FILENAME};
+        const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
         const schedulerJobs = gcloud.schedulerJobs();
 
         const help = await schedulerJobs.help();

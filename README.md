@@ -77,3 +77,11 @@ async function cloudDatastore() {
     const cleanupResult = await datastore.cleanupIndexes("./index.yaml");
 }
 ```
+
+# Run using Service Account
+- Please grant the below permission for service account
+  - Cloud Functions Admin
+  - Cloud Scheduler Admin
+  - Cloud Datastore Owner
+  - Service Account User
+  - Logging Admin
