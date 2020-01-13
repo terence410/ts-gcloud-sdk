@@ -9,16 +9,15 @@ const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 export type IProjectOptions = {
     cwd?: string,
     keyFilename?: string,
+    clientEmail?: string;
 };
 
 export class GcloudSdk {
-    private _credentialEmail: string | undefined;
-
     constructor(public readonly project: string = "", private _options: IProjectOptions = {}) {
         if (this._options.keyFilename) {
             try {
                 const keyJson = JSON.parse(fs.readFileSync(this._options.keyFilename).toString());
-                this._credentialEmail = keyJson.client_email;
+                this._options.clientEmail = keyJson.client_email;
             } catch (err) {
                 throw new Error(`keyFilename ${this._options.keyFilename} not exist / invalid json format`);
             }
@@ -52,7 +51,7 @@ export class GcloudSdk {
             const listResults = result.stdout.split("\r\n");
             for (const line of listResults.splice(2)) {
                 const matches = line.match(/\*[ ]*(.*)/);
-                if (matches && (!this._credentialEmail || matches[1] === this._credentialEmail)) {
+                if (matches && (!this._options.clientEmail || matches[1] === this._options.clientEmail)) {
                     debug(`You already signed in as ${matches[1]}.`);
                     isSignedIn = true;
                 }
@@ -107,13 +106,13 @@ export class GcloudSdk {
             for (const line of results.splice(1)) {
                 const matches = line.match(/- (.*)/);
                 if (matches) {
-                    console.log(`You are signed out from ${matches[1]}.`);
+                    debug(`You are signed out from ${matches[1]}.`);
                 }
             }
         } catch (err) {
             debug(err);
 
-            console.log(`No account to sign out.`);
+            debug(`No account to sign out.`);
         }
     }
 

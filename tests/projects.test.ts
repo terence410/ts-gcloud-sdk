@@ -5,7 +5,8 @@ import {GcloudSdk} from "../src/GcloudSdk";
 
 describe("gcloud projects", () => {
     it("full test", async () => {
-        const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME).init();
+        const options = {clientEmail: process.env.GCP_CLIENT_EMAIL};
+        const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
         const projects = gcloud.projects();
 
         const help = await projects.help();
