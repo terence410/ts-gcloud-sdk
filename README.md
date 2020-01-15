@@ -16,7 +16,18 @@ import {GcloudSdk} from "./ts-gcloud-sdk";
 async function quickStart() {
     const gcloudSDK = await new GcloudSdk("project-name");
     const help = await gcloudSDK.help();
+    const version = await gcloudSDK.version();
     const gcloud = gcloudSDK.init();
+
+    // make sure the existing gcloud session is same as the clientEmail
+    const gcloudSDK1 = await new GcloudSdk("project-name",
+        {clientEmail: "abc@example.com"});
+
+    // prompt a web view to login
+    const gcloudSDK2 = await new GcloudSdk("project-name", {useInteractiveLogin: true});
+
+    // prompt a web view to login
+    const gcloudSDK3 = await new GcloudSdk("project-name", {keyFilename: "serviceAccount.json"});
 }
 ```
 
@@ -72,14 +83,16 @@ async function cloudOrganizations() {
 async function cloudDatastore() {
     const gcloud = await new GcloudSdk("project-name").init();
     const datastore = gcloud.datastore();
-    const listResult = await datastore.listIndexes();
-    const createResult = await datastore.createIndexes("./index.yaml");
-    const cleanupResult = await datastore.cleanupIndexes("./index.yaml");
+    const datastoreIndexes = datastore.indexes();
+
+    const listResult = await datastoreIndexes.listIndexes();
+    const createResult = await datastoreIndexes.createIndexes("./index.yaml");
+    const cleanupResult = await datastoreIndexes.cleanupIndexes("./index.yaml");
 }
 ```
 
-# Run using Service Account
-- Please grant the below permission for service account
+# Run with Service Account
+- Please grant the below permission if you use service account
   - Cloud Functions Admin
   - Cloud Scheduler Admin
   - Cloud Datastore Owner

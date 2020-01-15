@@ -6,23 +6,19 @@
   "types": "build/index.d.ts",
   "scripts": {
     "test": "",
-    "test general": "mocha --exit --timeout 120000 -r ts-node/register tests/general.test.ts",
-    "test functions": "mocha --exit --timeout 120000 -r ts-node/register tests/functions.test.ts",
-    "test schedulerJobs": "mocha --exit --timeout 120000 -r ts-node/register tests/schedulerJobs.test.ts",
-    "test organizations": "mocha --exit --timeout 120000 -r ts-node/register tests/organizations.test.ts",
-    "test projects": "mocha --exit --timeout 120000 -r ts-node/register tests/projects.test.ts",
-    "test datastore": "mocha --exit --timeout 120000 -r ts-node/register tests/datastore.test.ts",
-    "test logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
+    "test:login": "mocha --exit --timeout 120000 -r ts-node/register tests/login.test.ts",
+    "test:functions": "mocha --exit --timeout 120000 -r ts-node/register tests/functions.test.ts",
+    "test:schedulerJobs": "mocha --exit --timeout 120000 -r ts-node/register tests/schedulerJobs.test.ts",
+    "test:organizations": "mocha --exit --timeout 120000 -r ts-node/register tests/organizations.test.ts",
+    "test:projects": "mocha --exit --timeout 120000 -r ts-node/register tests/projects.test.ts",
+    "test:datastore": "mocha --exit --timeout 120000 -r ts-node/register tests/datastore.test.ts",
+    "test:logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
     "build": "tsc",
     "patch": "npm version patch"
   },
   "dependencies": {
     "debug": "^4.1.1",
     "@types/debug": "^4.1.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/terence410/ts-gcloud-sdk.git"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
@@ -31,7 +27,6 @@
     "@types/node": "^12.7.11",
     "chai": "^4.2.0",
     "mocha": "^6.2.1",
-    "source-map-support": "^0.5.13",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.3"
   },
@@ -46,5 +41,9 @@
     "cloud projects",
     "cloud organizations"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/terence410/ts-gcloud-sdk.git"
+  },
   "license": "MIT License"
 }

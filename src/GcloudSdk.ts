@@ -8,27 +8,29 @@ const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export type IProjectOptions = {
     cwd?: string,
+    useInteractiveLogin?: boolean,
     keyFilename?: string,
     clientEmail?: string;
 };
 
 export class GcloudSdk {
-    constructor(public readonly project: string = "", private _options: IProjectOptions = {}) {
-        if (this._options.keyFilename) {
+    constructor(public readonly project: string = "", public projectOptions: IProjectOptions = {}) {
+        if (this.projectOptions.keyFilename) {
             try {
-                const keyJson = JSON.parse(fs.readFileSync(this._options.keyFilename).toString());
-                this._options.clientEmail = keyJson.client_email;
+                const keyJson = JSON.parse(fs.readFileSync(this.projectOptions.keyFilename).toString());
+                this.projectOptions.clientEmail = keyJson.client_email;
             } catch (err) {
-                throw new Error(`keyFilename ${this._options.keyFilename} not exist / invalid json format`);
+                throw new Error(`keyFilename ${this.projectOptions.keyFilename} not exist / invalid json format`);
             }
         }
     }
 
     public async init() {
-        this._validateProjectOptions(this._options);
+        this._validateProjectOptions(this.projectOptions);
 
         try {
-            await this.help();
+            const version = await this.version();
+            debug(`gcloud version: ${version}`);
         } catch (err) {
             debug(err);
             
@@ -36,36 +38,93 @@ export class GcloudSdk {
             throw Error( `Google Cloud SDK not installed. Please check if you have added the SDK into the PATH variable.`);
         }
 
-        if (await this.login()) {
-            return new Gcloud(this.project, this._options);
+        if (await this._login()) {
+            return new Gcloud(this.project, this.projectOptions);
         } else {
-            throw new Error(`You failed to sign in. Please try again.`);
+            throw new Error(`There is no authorized user. Please try again.`);
         }
     }
 
-    public async login(): Promise<boolean> {
-        const result = await new ChildProcessHelper(sdkPath, ["auth", "list"]).exec();
+    public async authWithInteractive() {
+        const result = await new ChildProcessHelper()
+            .addParams(["auth", "login"])
+            .exec();
+        return result.stderr;
+    }
+
+    public async authWithServiceAccount(keyFilename: string) {
+        const result = await new ChildProcessHelper()
+            .addParams([
+                "auth",
+                "activate-service-account",
+                "--key-file=" + keyFilename,
+            ])
+            .exec();
+        return result.stderr;
+    }
+
+    public async logout() {
+        try {
+            const result = await new ChildProcessHelper()
+                .addParams(["auth", "revoke"])
+                .exec();
+            const results = result.stdout.split("\r\n");
+            for (const line of results.splice(1)) {
+                const matches = line.match(/- (.*)/);
+                if (matches) {
+                    debug(`You are signed out from ${matches[1]}.`);
+                }
+            }
+        } catch (err) {
+            debug(err);
+
+            debug(`No account to sign out.`);
+        }
+    }
+
+    public async help() {
+        const result = await new ChildProcessHelper()
+            .addArgument({help: "" })
+            .exec();
+        return result.stdout;
+    }
+
+    public async version() {
+        const result = await new ChildProcessHelper()
+            .addArgument({version: "" })
+            .exec();
+        return result.stdout;
+    }
+
+    private async _login(): Promise<boolean> {
+        const result = await new ChildProcessHelper()
+            .addParams(["auth", "list"])
+            .exec();
+
         let isSignedIn = false;
 
         if (/Credentialed Accounts/.test(result.stdout)) {
             const listResults = result.stdout.split("\r\n");
             for (const line of listResults.splice(2)) {
                 const matches = line.match(/\*[ ]*(.*)/);
-                if (matches && (!this._options.clientEmail || matches[1] === this._options.clientEmail)) {
+                if (matches && (!this.projectOptions.clientEmail || matches[1] === this.projectOptions.clientEmail)) {
                     debug(`You already signed in as ${matches[1]}.`);
                     isSignedIn = true;
                 }
             }
         }
 
+        // we try to sign in using different way
         if (!isSignedIn) {
             let authResult: string = "";
-            if (this._options.keyFilename) {
+            if (this.projectOptions.keyFilename) {
                 debug("Logging in with service account");
-                authResult = await this.authWithServiceAccount(this._options.keyFilename);
+                authResult = await this.authWithServiceAccount(this.projectOptions.keyFilename);
             } else {
-                debug("Please login to Google Cloud");
-                authResult = await this.authWithInteractive();
+                if (this.projectOptions.useInteractiveLogin) {
+                    debug("Please login to Google Cloud");
+                    authResult = await this.authWithInteractive();
+                }
             }
 
             // try to check both stdout/stderr for login data
@@ -82,42 +141,6 @@ export class GcloudSdk {
         }
 
         return isSignedIn;
-    }
-
-    public async authWithInteractive() {
-        const result = await new ChildProcessHelper(sdkPath, ["auth", "login"]).exec();
-        return result.stderr;
-    }
-
-    public async authWithServiceAccount(keyFilename: string) {
-        const params = [
-            "auth",
-            "activate-service-account",
-            "--key-file=" + keyFilename,
-        ];
-        const result = await new ChildProcessHelper(sdkPath, params).exec();
-        return result.stderr;
-    }
-
-    public async logout() {
-        try {
-            const result = await new ChildProcessHelper(sdkPath, ["auth", "revoke"]).exec();
-            const results = result.stdout.split("\r\n");
-            for (const line of results.splice(1)) {
-                const matches = line.match(/- (.*)/);
-                if (matches) {
-                    debug(`You are signed out from ${matches[1]}.`);
-                }
-            }
-        } catch (err) {
-            debug(err);
-
-            debug(`No account to sign out.`);
-        }
-    }
-
-    public async help() {
-        return await new ChildProcessHelper(sdkPath, ["--help"]).exec();
     }
 
     private _validateProjectOptions(options: IProjectOptions) {

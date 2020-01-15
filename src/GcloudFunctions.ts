@@ -27,11 +27,11 @@ type IEventTypesResult = {
     resourceOptional: string,
 };
 
-// argv
+// argument
 
 type IDeployArgv = {
+    region: string,
     entryPoint?: string,
-    region?: string,
     runtime?: string,
     memory?: string,
     retry?: boolean,
@@ -50,7 +50,7 @@ type IDeployArgv = {
 };
 
 type IDeleteArgv = {
-    region?: string,
+    region: string,
 };
 
 type IListArgv = {
@@ -60,59 +60,69 @@ type IListArgv = {
 };
 
 type IDescribeArgv = {
-    region?: string,
+    region: string,
 };
 
 type ICallArgv = {
-    region?: string,
+    region: string,
     data?: string | object,
+};
+
+type IAddIamPolicyBindingArgv = {
+    region?: string,
+    member: "allUsers" | string,
+    role: "roles/cloudfunctions.invoker" | string,
 };
 
 export class GcloudFunctions extends GcloudBase {
     public runtimes = runtimes;
     public memory = memory;
 
-    public async list(argv: IListArgv = {}) {
-        const table = await this._quickExec("list", "", argv);
+    public async list(argument: IListArgv = {}) {
+        const table = await this._exec(["list"],  argument);
         const headers = ["name", "status", "trigger", "region"];
         return this._parseTable(table, headers) as IListResult[];
     }
 
-    public async deploy(name: string, argv: IDeployArgv = {}) {
-        return await this._quickExec("deploy", name, argv);
+    public async deploy(name: string, argument: IDeployArgv) {
+        return await this._exec(["deploy", name], argument);
     }
 
-    public async delete(name: string, argv: IDeleteArgv = {}) {
+    public async delete(name: string, argument: IDeleteArgv) {
         const params: string[] = [];
-        return await this._quickExec("delete", name, argv);
+        return await this._exec(["delete", name], argument);
     }
 
-    public async call(name: string, argv: ICallArgv = {}) {
-        return await this._quickExec("call", name, argv);
+    public async call(name: string, argument: ICallArgv) {
+        return await this._exec(["call", name], argument);
     }
 
-    public async describe(name: string, argv: IDescribeArgv = {}): Promise<string | undefined> {
+    public async addIamPolicyBinding(name: string, argument: IAddIamPolicyBindingArgv) {
+        return await this._exec(["add-iam-policy-binding", name], argument);
+    }
+
+    public async describe(name: string, argument: IDescribeArgv): Promise<string | undefined> {
         try {
-            return await this._quickExec("describe", name, argv);
+            return await this._exec(["describe", name], argument);
         } catch (err) {
             return;
         }
     }
 
     public async logs() {
-        const table = await this._quickExec("logs", "read");
+        const table = await this._exec(["logs", "read"]);
         const headers = ["level", "name", "executionId", "timeUtc", "log"];
         return this._parseTable(table, headers) as ILogsResult[];
     }
 
     public async eventTypes() {
-        const table = await this._quickExec("event-types", "list");
+        const table = await this._exec(["event-types", "list"]);
         const headers = ["eventProvider", "eventType", "eventTypeDefault", "resourceType", "resourceOptional"];
         return this._parseTable(table, headers) as IEventTypesResult[];
     }
 
     public async regions() {
-        const table = await this._quickExec("regions", "list");
+        const table = await this._exec(["regions", "list"]);
         return this._parseTable(table) as string[];
     }
 }

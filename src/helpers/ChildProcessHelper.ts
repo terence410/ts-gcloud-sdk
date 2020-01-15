@@ -1,6 +1,7 @@
 import * as child_process from "child_process";
 import Debug from "debug";
 import * as path from "path";
+import {camelToDash, escapeQuotes} from "../utils";
 const debug = Debug("gcloud");
 
 export type IInteractive = {
@@ -8,27 +9,68 @@ export type IInteractive = {
     respond: string;
 };
 
-export class ChildProcessHelper {
-    private _execOptions: object;
+let sdkPath = process.env.GCP_SDK_PATH || "gcloud";
+if (path.isAbsolute(sdkPath)) {
+    sdkPath = `"${sdkPath}"`;
+}
 
-    constructor(public executable: string, public params: string[] = [], execOptions = {}) {
-        this._execOptions = Object.assign({
+export class ChildProcessHelper {
+    public params: string[] = [];
+    public arguments: string[] = [];
+    public execOptions: object;
+
+    constructor(execOptions = {}) {
+        this.execOptions = Object.assign({
             shell: true,
             cwd: process.cwd(),
         }, execOptions);
     }
 
-    public async exec(): Promise<{stdout: string, stderr: string}> {
-        let executable = this.executable;
-        if (path.isAbsolute(this.executable)) {
-            executable = `"${executable}"`;
+    public addParams(params: string[]) {
+        for (const param of params) {
+            this.params.push(param);
         }
 
-        const command = `${executable} ${this.params.join(" ")}`;
+        return this;
+    }
+
+    public addArgument(argument: {[key: string]: any}) {
+        for (const [name, value] of Object.entries(argument)) {
+            const argumentName = `--${camelToDash(name)}`;
+            this.arguments.push(argumentName);
+
+            if (value) {
+                // add value
+                if (Array.isArray(value) && value.length > 0) {
+                    this.arguments.push(value.join(", "));
+                } else {
+                    if (typeof value === "string") {
+                        const quotedValue = `"${value.replace("&", "^&")}"`;
+                        this.arguments.push(quotedValue);
+
+                    } else if (typeof value === "number") {
+                        this.arguments.push(value.toString());
+
+                    } else if (typeof value === "object") {
+                        const quotedValue = `"${escapeQuotes(JSON.stringify(value).replace("&", "^&"))}"`;
+                        this.arguments.push(quotedValue);
+
+                    } else {
+                        // do nothing
+                    }
+                }
+            }
+        }
+
+        return this;
+    }
+
+    public async exec(): Promise<{stdout: string, stderr: string}> {
+        const command = `${sdkPath} ${this.params.concat(...this.arguments).join(" ")}`;
         debug("exec", command);
 
         const output = await new Promise<any>((resolve, reject) => {
-            child_process.exec(command, this._execOptions,
+            child_process.exec(command, this.execOptions,
                 (err: any, stdout: string, stderr: string) => {
                     if (err) {
                         return reject(err);
@@ -41,20 +83,22 @@ export class ChildProcessHelper {
         return output;
     }
 
+    // no use yet
     public async execInteractive(interactives: IInteractive[],
-                                 options: {initStdin?: string, sendNewLineOnStderr?: boolean} = {}):
-        Promise<{stdout: string, stderr: string}> {
+                                 options: { initStdin?: string, sendNewLineOnStderr?: boolean } = {}):
+        Promise<{ stdout: string, stderr: string }> {
+
         const output = await new Promise<any>((resolve, reject) => {
             let stdout = "";
             let stderr = "";
 
-            const command = `${this.executable} ${this.params.join(" ")}`;
+            const command = `${sdkPath} ${this.params.join(" ")} ${this.arguments.join(" ")}`;
             debug("execInteractive", command);
-            const spawn = child_process.spawn(command, [], this._execOptions);
+            const spawn = child_process.spawn(command, [], this.execOptions);
 
             // if we need to pass something to stdin first
             spawn.stdin.setDefaultEncoding("utf8");
-            if (options.initStdin !== undefined ) {
+            if (options.initStdin !== undefined) {
                 spawn.stdin.write(options.initStdin);
             }
 
@@ -65,7 +109,7 @@ export class ChildProcessHelper {
                 debug("execInteractive:stdout", data);
                 for (const interactive of interactives) {
                     if (data.match(interactive.match)) {
-                        const respond = interactive.respond + (interactive.respond.match(/\r?\n/)  ? "" : "\n");
+                        const respond = interactive.respond + (interactive.respond.match(/\r?\n/) ? "" : "\n");
                         spawn.stdin.write(respond);
                     }
                 }

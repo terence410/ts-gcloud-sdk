@@ -15,7 +15,7 @@ type IResourceDescriptors = {
     key: string,
 };
 
-// argv
+// argument
 
 type IListArgv = {
     limit?: number,
@@ -32,24 +32,24 @@ type IReadArgv = {
 };
 
 export class GcloudLogging extends GcloudBase {
-    public async listLogs(argv: IListArgv = {}): Promise<string[]> {
-        const table = await this._quickExec("logs", "list", argv);
+    public async listLogs(argument: IListArgv = {}): Promise<string[]> {
+        const table = await this._exec(["logs", "list"], argument);
         return this._parseTable(table);
     }
 
     public async resourceDescriptors(): Promise<IResourceDescriptors[]> {
-        const table = await this._quickExec("resource-descriptors", "list");
+        const table = await this._exec(["resource-descriptors", "list"]);
         const headers = ["type", "description", "key"];
         return this._parseTable(table, headers);
     }
 
-    public async read(filter: IReadFilter, argv: IReadArgv = {}) {
+    public async read(filter: IReadFilter, argument: IReadArgv = {}) {
         const filterString = "\"" + Object.entries(filter).map(x => `${x[0]}=${x[1]}`).join(" AND ") + "\"";
-        return await this._quickExec("read", filterString, argv);
+        return await this._exec(["read", filterString], argument);
     }
 
     public async write(logName: string, data: any) {
         const message = escapeQuotes(JSON.stringify(data));
-        return await this._quickExec(`write ${logName}`, message);
+        return await this._exec([`write ${logName}`, message]);
     }
 }

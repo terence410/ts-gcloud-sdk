@@ -17,12 +17,12 @@ type IListArgv = {
 
 export class GcloudProjects extends GcloudBase {
     public async list(argv: IListArgv = {}) {
-        const table = await this._quickExec("list", "", argv);
+        const table = await this._exec(["list"], argv);
         const headers = ["projectId", "name", "projectNumber"];
         return this._parseTable(table, headers) as IListResult[];
     }
 
     public async describe(name: string) {
-        return await this._quickExec("describe", name);
+        return await this._exec(["describe", name]);
     }
 }

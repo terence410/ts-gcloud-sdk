@@ -6,10 +6,13 @@ import {GcloudSdk} from "../src/GcloudSdk";
 
 describe("gcloud functions", () => {
     it("full test", async () => {
+        console.log(process.env.path);
+        console.log(process.env.paths);
         const cwd = path.join(process.cwd(), "./tests/functions/");
         const options = {cwd, keyFilename: process.env.KEY_FILENAME};
         const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
         const functions = gcloud.functions();
+        const region = gcloud.regions.usCentral1;
 
         const help = await functions.help();
         // console.log("help", help);
@@ -24,7 +27,7 @@ describe("gcloud functions", () => {
         console.log("eventTypes", eventTypes);
 
         const list = await functions.list();
-        const describe = await functions.describe("unknown");
+        const describe = await functions.describe("unknown", {region});
 
         for (const item of list) {
             console.log(item);
@@ -40,7 +43,6 @@ describe("gcloud functions", () => {
         }
 
         const name = "helloGET";
-        const region = gcloud.regions.usCentral1;
         const deploy = await functions
             .deploy(name, {
                 triggerHttp: true,
@@ -51,6 +53,9 @@ describe("gcloud functions", () => {
                 setEnvVars: "name=gcp",
             });
         console.log("deploy", deploy);
+
+        // allow public access
+        await functions.addIamPolicyBinding(name, {region, role: "roles/cloudfunctions.invoker", member: "allUsers"});
 
         // delete it
         await functions.delete(name, {region});

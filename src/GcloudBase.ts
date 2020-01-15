@@ -8,7 +8,8 @@ const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export class GcloudBase {
-    constructor(public readonly project: string, private _product: string, private _options: IProjectOptions = {}) {
+    constructor(public readonly project: string,
+                public commandPrefix: string, public projectOptions: IProjectOptions) {
     }
 
     public async help() {
@@ -17,85 +18,19 @@ export class GcloudBase {
 
     // region protected methods
 
-    protected async _quickExec(type: string, value: string = "", argv: {[key: string]: any} = {}): Promise<string> {
-        const params: string[] = [];
-        this._addParam(params, type, value);
-        this._addArgv(params, argv);
-        return await this._exec(params);
+    protected _createChildProcessHelper() {
+        const helper = new ChildProcessHelper(this.projectOptions);
+        helper.addParams([this.commandPrefix]);
+        helper.addArgument({project: this.project, quiet: ""});
+        return helper;
     }
 
-    protected async _exec(params: string[] = []): Promise<string> {
-        // update the params
-        params = [this._product, ...params, "--project", this.project, "--quiet"];
-
-        try {
-            const result = await new ChildProcessHelper(sdkPath, params, this._options)
-                .exec();
-            return result.stdout || result.stderr;
-
-        } catch (err) {
-            throw  err;
-
-        }
-    }
-
-    protected async _execInteractive(params: string[] = [], interactives: IInteractive[],
-                                     options: {initStdin?: string, sendNewLineOnStderr?: boolean} = {}):
-        Promise<string> {
-        // update the params
-        params = [this._product, "--project", this.project, ...params];
-
-        try {
-            const result = await new ChildProcessHelper(sdkPath, params, this._options)
-                .execInteractive(interactives, options);
-            return result.stdout || result.stderr;
-
-        } catch (err) {
-            throw err;
-
-        }
-    }
-
-    protected _addParam(params: string[] = [], name: string, value?: string) {
-        params.push(name);
-
-        if (value && value !== "") {
-            params.push(value);
-        }
-    }
-
-    protected _addArgv(params: string[] = [], argv: {[key: string]: any}) {
-        for (const [name, value] of Object.entries(argv)) {
-            this._addSingleArgv(params, name, value);
-        }
-    }
-
-    protected _addSingleArgv(params: string[] = [], name: string, value?: any) {
-        // add name
-        const argumentName = `--${camelToDash(name)}`;
-        params.push(argumentName);
-
-        if (value) {
-            // add value
-            if (Array.isArray(value) && value.length > 0) {
-                params.push(value.join(", "));
-            } else {
-                if (typeof value === "string") {
-                    const quotedValue = `"${value.replace("&", "^&")}"`;
-                    params.push(quotedValue);
-
-                } else if (typeof value === "number") {
-                    params.push(value.toString());
-
-                } else if (typeof value === "object") {
-                    const quotedValue = `"${escapeQuotes(JSON.stringify(value).replace("&", "^&"))}"`;
-                    params.push(quotedValue);
-
-                } else {
-                    // do nothing
-                }
-            }
-        }
+    protected async _exec(params: string[], argument: {[key: string]: any} = {}): Promise<string> {
+        const helper = this._createChildProcessHelper();
+        helper.addArgument(argument);
+        helper.addParams(params);
+        const result = await helper.exec();
+        return result.stdout || result.stderr;
     }
 
     protected _parseTable(table: string, headers?: string[], isSplitBySpace = false) {

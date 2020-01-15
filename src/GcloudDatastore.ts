@@ -1,6 +1,7 @@
 // https://cloud.google.com/sdk/gcloud/reference/datastore/
 
 import {GcloudBase} from "./GcloudBase";
+import {GcloudDatastoreIndexes} from "./GcloudDatastore/GcloudDatastoreIndexes";
 
 type IListResult = {
     projectId: string,
@@ -16,21 +17,7 @@ type IListArgv = {
 };
 
 export class GcloudDatastore extends GcloudBase {
-    public async createIndexes(filename: string) {
-        const params: string[] = [];
-        return await this._quickExec("indexes create", filename);
-    }
-
-    public async cleanupIndexes(filename: string) {
-        const params: string[] = [];
-        return await this._quickExec("indexes cleanup", filename);
-    }
-
-    public async listIndexes() {
-        return await this._quickExec("indexes list");
-    }
-
-    public async describeIndexes(indexId: string) {
-        return await this._quickExec("indexes describe", indexId);
+    public indexes() {
+        return new GcloudDatastoreIndexes(this.project, "datastore indexes", this.projectOptions);
     }
 }

@@ -8,9 +8,9 @@ describe("gcloud projects", () => {
         const options = {keyFilename: process.env.KEY_FILENAME};
         const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
         const datastore = gcloud.datastore();
-        const help = await datastore.help();
-        const listResult = await datastore.listIndexes();
-        const createResult = await datastore.createIndexes("./index.yaml");
-        const cleanupResult = await datastore.cleanupIndexes("./index.yaml");
+        const datastoreIndexes = datastore.indexes();
+        const listResult = await datastoreIndexes.listIndexes();
+        const createResult = await datastoreIndexes.createIndexes("./index.yaml");
+        const cleanupResult = await datastoreIndexes.cleanupIndexes("./index.yaml");
     });
 });
