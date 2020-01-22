@@ -68,9 +68,9 @@ export class GcloudSdk {
             const result = await new ChildProcessHelper()
                 .addParams(["auth", "revoke"])
                 .exec();
-            const results = result.stdout.split("\r\n");
-            for (const line of results.splice(1)) {
-                const matches = line.match(/- (.*)/);
+            const results = result.stdout.split("\n");
+            for (const line of results.slice(1)) {
+                const matches = line.trim().match(/- (.*)/);
                 if (matches) {
                     debug(`You are signed out from ${matches[1]}.`);
                 }
@@ -104,9 +104,10 @@ export class GcloudSdk {
         let isSignedIn = false;
 
         if (/Credentialed Accounts/.test(result.stdout)) {
-            const listResults = result.stdout.split("\r\n");
-            for (const line of listResults.splice(2)) {
-                const matches = line.match(/\*[ ]*(.*)/);
+            const listResults = result.stdout.split("\n");
+            for (const line of listResults.slice(2)) {
+                const matches = line.trim().match(/\*[ ]*(.*)/);
+                debug(`Exist Account: ${line}`);
                 if (matches && (!this.projectOptions.clientEmail || matches[1] === this.projectOptions.clientEmail)) {
                     debug(`You already signed in as ${matches[1]}.`);
                     isSignedIn = true;
