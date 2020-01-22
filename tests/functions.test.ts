@@ -6,8 +6,6 @@ import {GcloudSdk} from "../src/GcloudSdk";
 
 describe("gcloud functions", () => {
     it("full test", async () => {
-        console.log(process.env.path);
-        console.log(process.env.paths);
         const cwd = path.join(process.cwd(), "./tests/functions/");
         const options = {cwd, keyFilename: process.env.KEY_FILENAME};
         const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
