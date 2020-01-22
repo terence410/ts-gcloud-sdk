@@ -8,6 +8,7 @@ const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export type IProjectOptions = {
     cwd?: string,
+    useExistlogin?: boolean,
     useInteractiveLogin?: boolean,
     keyFilename?: string,
     clientEmail?: string;
@@ -104,13 +105,14 @@ export class GcloudSdk {
         let isSignedIn = false;
 
         if (/Credentialed Accounts/.test(result.stdout)) {
-            const listResults = result.stdout.split("\n");
+            const listResults = result.stdout.trim().split("\n");
             for (const line of listResults.slice(2)) {
                 const matches = line.trim().match(/\*[ ]*(.*)/);
                 debug(`Exist Account: ${line}`);
-                if (matches && (!this.projectOptions.clientEmail || matches[1] === this.projectOptions.clientEmail)) {
+                if (matches && (this.projectOptions.useExistlogin || matches[1] === this.projectOptions.clientEmail)) {
                     debug(`You already signed in as ${matches[1]}.`);
                     isSignedIn = true;
+                    break;
                 }
             }
         }
