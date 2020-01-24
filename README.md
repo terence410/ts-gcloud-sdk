@@ -6,6 +6,10 @@ Google Cloud SDK functional wrapper written in TypeScript. Useful for automation
 - GCP_SDK_PATH 
   - If your sdk it not added to path, you can specific the env variable to point to the path directly
   - export GCP_SDK_PATH=C:\Program Files\google-cloud-sdk\bin\gcloud
+- GCP_BQ_PATH 
+  - default value is "bq"
+- GCP_GSUTIL_PATH 
+  - default value is "gsutil"
 - DEBUG=gcloud
   - show all the logs and commands of the sdk
 
