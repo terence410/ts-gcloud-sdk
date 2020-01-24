@@ -14,7 +14,7 @@ export class Gcloud {
     public timeZones = timeZones;
     public httpMethods = httpMethods;
 
-    constructor(public readonly project: string, private _options: IProjectOptions = {}) {
+    constructor(public readonly project: string, private _options: Partial<IProjectOptions> = {}) {
 
     }
 

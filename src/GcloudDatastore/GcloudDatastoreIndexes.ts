@@ -16,21 +16,21 @@ type IListArgv = {
 };
 
 export class GcloudDatastoreIndexes extends GcloudBase {
-    public async createIndexes(filename: string) {
+    public async create(filename: string) {
         const params: string[] = [];
         return await this._exec(["create", filename]);
     }
 
-    public async cleanupIndexes(filename: string) {
+    public async cleanup(filename: string) {
         const params: string[] = [];
         return await this._exec(["cleanup", filename]);
     }
 
-    public async listIndexes() {
+    public async list() {
         return await this._exec(["list"]);
     }
 
-    public async describeIndexes(indexId: string) {
+    public async describe(indexId: string) {
         return await this._exec(["describe", indexId]);
     }
 }

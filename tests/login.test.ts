@@ -13,13 +13,13 @@ describe("general", () => {
     });
 
     it("login with interactive", async () => {
-        const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME, {useInteractiveLogin: true});
+        const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME);
         await gcloudSdk.logout();
         const gcloud = await gcloudSdk.init();
     });
 
     it("logout with interactive", async () => {
-        const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME);
+        const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME, {useInteractiveLogin: false});
         await gcloudSdk.logout();
 
         try {
