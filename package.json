@@ -6,6 +6,8 @@
   "types": "build/index.d.ts",
   "scripts": {
     "test": "",
+    "test:gsutil": "mocha --exit --timeout 120000 -r ts-node/register tests/gsutil.test.ts",
+    "test:bigQuery": "mocha --exit --timeout 120000 -r ts-node/register tests/bigQuery.test.ts",
     "test:login": "mocha --exit --timeout 120000 -r ts-node/register tests/login.test.ts",
     "test:functions": "mocha --exit --timeout 120000 -r ts-node/register tests/functions.test.ts",
     "test:schedulerJobs": "mocha --exit --timeout 120000 -r ts-node/register tests/schedulerJobs.test.ts",

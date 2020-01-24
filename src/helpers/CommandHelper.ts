@@ -1,6 +1,5 @@
 import * as child_process from "child_process";
 import Debug from "debug";
-import * as path from "path";
 import {camelToDash, escapeQuotes} from "../utils";
 const debug = Debug("gcloud");
 
@@ -9,17 +8,12 @@ export type IInteractive = {
     respond: string;
 };
 
-let sdkPath = process.env.GCP_SDK_PATH || "gcloud";
-if (path.isAbsolute(sdkPath)) {
-    sdkPath = `"${sdkPath}"`;
-}
-
-export class ChildProcessHelper {
+export class CommandHelper {
     public params: string[] = [];
     public arguments: string[] = [];
     public execOptions: object;
 
-    constructor(execOptions = {}) {
+    constructor(public commandPath: string, execOptions = {}) {
         this.execOptions = Object.assign({
             shell: true,
             cwd: process.cwd(),
@@ -66,7 +60,7 @@ export class ChildProcessHelper {
     }
 
     public async exec(): Promise<{stdout: string, stderr: string}> {
-        const command = `${sdkPath} ${this.params.concat(...this.arguments).join(" ")}`;
+        const command = `${this.commandPath} ${this.params.concat(...this.arguments).join(" ")}`;
         debug("exec", command);
 
         const output = await new Promise<any>((resolve, reject) => {
@@ -92,7 +86,7 @@ export class ChildProcessHelper {
             let stdout = "";
             let stderr = "";
 
-            const command = `${sdkPath} ${this.params.join(" ")} ${this.arguments.join(" ")}`;
+            const command = `${this.commandPath} ${this.params.join(" ")} ${this.arguments.join(" ")}`;
             debug("execInteractive", command);
             const spawn = child_process.spawn(command, [], this.execOptions);
 

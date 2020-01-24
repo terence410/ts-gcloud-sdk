@@ -1,7 +1,6 @@
 import Debug from "debug";
 import {IProjectOptions} from "./GcloudSdk";
-import {IInteractive} from "./helpers/ChildProcessHelper";
-import {ChildProcessHelper} from "./helpers/ChildProcessHelper";
+import {GcloudCommandHelper} from "./helpers/GcloudCommandHelper";
 import {camelToDash, camelToSnakeCapitalize, escapeQuotes} from "./utils";
 
 const debug = Debug("gcloud");
@@ -9,7 +8,7 @@ const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export class GcloudBase {
     constructor(public readonly project: string,
-                public commandPrefix: string, public projectOptions: IProjectOptions) {
+                public commandPrefix: string, public projectOptions: Partial<IProjectOptions>) {
     }
 
     public async help() {
@@ -19,7 +18,7 @@ export class GcloudBase {
     // region protected methods
 
     protected _createChildProcessHelper() {
-        const helper = new ChildProcessHelper(this.projectOptions);
+        const helper = new GcloudCommandHelper(this.projectOptions);
         helper.addParams([this.commandPrefix]);
         helper.addArgument({project: this.project, quiet: ""});
         return helper;

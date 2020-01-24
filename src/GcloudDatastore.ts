@@ -11,13 +11,23 @@ type IListResult = {
 
 // argv
 
-type IListArgv = {
-    limit?: number,
-    pageSize?: number,
+type IImportExportArgv = {
+    kinds?: string[],
+    namespaces?: string[],
+    operationLabels?: string[],
 };
 
 export class GcloudDatastore extends GcloudBase {
     public indexes() {
         return new GcloudDatastoreIndexes(this.project, "datastore indexes", this.projectOptions);
     }
+
+    public async export(outputUrlPrefix: string, argument: IImportExportArgv) {
+        return await this._exec(["export", outputUrlPrefix], argument);
+    }
+
+    public async import(outputUrlPrefix: string, argument: IImportExportArgv = {}) {
+        return await this._exec(["import", outputUrlPrefix], argument);
+    }
+
 }

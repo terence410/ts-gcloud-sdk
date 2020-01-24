@@ -62,7 +62,7 @@ async function cloudDatastore() {
     const datastore = gcloud.datastore();
     const datastoreIndexes = datastore.indexes();
 
-    const listResult = await datastoreIndexes.listIndexes();
-    const createResult = await datastoreIndexes.createIndexes("./index.yaml");
-    const cleanupResult = await datastoreIndexes.cleanupIndexes("./index.yaml");
+    const listResult = await datastoreIndexes.list();
+    const createResult = await datastoreIndexes.create("./index.yaml");
+    const cleanupResult = await datastoreIndexes.cleanup("./index.yaml");
 }

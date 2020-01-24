@@ -91,6 +91,25 @@ async function cloudDatastore() {
 }
 ```
 
+# Gsutil Command
+```typescript
+async function gsutilCommand() {
+    const gsutil = new GsutilCommandHelper();
+    gsutil.addParams(["help", "rm"]);
+    gsutil.addArgument({q: ""});
+    const result = await gsutil.exec();
+}
+```
+
+# Big Query Command
+```typescript
+async function bigQueryCommand() {
+    const bigQuery = new BigQueryCommandHelper();
+    bigQuery.addArgument({help: ""});
+    const result = await bigQuery.exec();
+}
+```
+
 # Run with Service Account
 - Please grant the below permission if you use service account
   - Cloud Functions Admin

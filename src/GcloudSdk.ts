@@ -1,20 +1,29 @@
 import Debug from "debug";
 import * as fs from "fs";
 import {Gcloud} from "./Gcloud";
-import {ChildProcessHelper} from "./helpers/ChildProcessHelper";
+import {GcloudCommandHelper} from "./helpers/GcloudCommandHelper";
 
 const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export type IProjectOptions = {
-    cwd?: string,
-    useInteractiveLogin?: boolean,
-    keyFilename?: string,
-    clientEmail?: string;
+    cwd: string,
+    clientEmail: string;
+    useInteractiveLogin: boolean,
+    keyFilename: string,
 };
 
 export class GcloudSdk {
-    constructor(public readonly project: string = "", public projectOptions: IProjectOptions = {}) {
+    public projectOptions: IProjectOptions;
+
+    constructor(public readonly project: string = "", projectOptions: Partial<IProjectOptions> = {}) {
+        this.projectOptions = Object.assign({
+            cwd: process.cwd(),
+            clientEmail: "",
+            useInteractiveLogin: true,
+            keyFilename: "",
+        }, projectOptions);
+
         if (this.projectOptions.keyFilename) {
             try {
                 const keyJson = JSON.parse(fs.readFileSync(this.projectOptions.keyFilename).toString());
@@ -46,14 +55,14 @@ export class GcloudSdk {
     }
 
     public async authWithInteractive() {
-        const result = await new ChildProcessHelper()
+        const result = await new GcloudCommandHelper()
             .addParams(["auth", "login"])
             .exec();
         return result.stderr;
     }
 
     public async authWithServiceAccount(keyFilename: string) {
-        const result = await new ChildProcessHelper()
+        const result = await new GcloudCommandHelper()
             .addParams([
                 "auth",
                 "activate-service-account",
@@ -65,7 +74,7 @@ export class GcloudSdk {
 
     public async logout() {
         try {
-            const result = await new ChildProcessHelper()
+            const result = await new GcloudCommandHelper()
                 .addParams(["auth", "revoke"])
                 .exec();
             const results = result.stdout.split("\n");
@@ -83,34 +92,35 @@ export class GcloudSdk {
     }
 
     public async help() {
-        const result = await new ChildProcessHelper()
+        const result = await new GcloudCommandHelper()
             .addArgument({help: "" })
             .exec();
         return result.stdout;
     }
 
     public async version() {
-        const result = await new ChildProcessHelper()
+        const result = await new GcloudCommandHelper()
             .addArgument({version: "" })
             .exec();
         return result.stdout;
     }
 
     private async _login(): Promise<boolean> {
-        const result = await new ChildProcessHelper()
+        const result = await new GcloudCommandHelper()
             .addParams(["auth", "list"])
             .exec();
 
         let isSignedIn = false;
 
         if (/Credentialed Accounts/.test(result.stdout)) {
-            const listResults = result.stdout.split("\n");
+            const listResults = result.stdout.trim().split("\n");
             for (const line of listResults.slice(2)) {
                 const matches = line.trim().match(/\*[ ]*(.*)/);
                 debug(`Exist Account: ${line}`);
                 if (matches && (!this.projectOptions.clientEmail || matches[1] === this.projectOptions.clientEmail)) {
                     debug(`You already signed in as ${matches[1]}.`);
                     isSignedIn = true;
+                    break;
                 }
             }
         }
