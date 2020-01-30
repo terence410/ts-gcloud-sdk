@@ -39,14 +39,24 @@ export class CommandHelper {
                     this.arguments.push(value.join(", "));
                 } else {
                     if (typeof value === "string") {
-                        const quotedValue = `"${value.replace("&", "^&")}"`;
+                        let stringValue = value;
+                        if (process.platform === "win32") {
+                            stringValue = stringValue.replace("&", "^&");
+                        }
+
+                        const quotedValue = `"${stringValue}"`;
                         this.arguments.push(quotedValue);
 
                     } else if (typeof value === "number") {
                         this.arguments.push(value.toString());
 
                     } else if (typeof value === "object") {
-                        const quotedValue = `"${escapeQuotes(JSON.stringify(value).replace("&", "^&"))}"`;
+                        let objectValue = JSON.stringify(value);
+                        if (process.platform === "win32") {
+                            objectValue = objectValue.replace("&", "^&");
+                        }
+
+                        const quotedValue = `"${escapeQuotes(objectValue)}"`;
                         this.arguments.push(quotedValue);
 
                     } else {
