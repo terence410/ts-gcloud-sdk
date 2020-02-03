@@ -1,6 +1,7 @@
 import {httpMethods} from "./enums/httpMethods";
 import {regions} from "./enums/regions";
 import {timeZones} from "./enums/timeZones";
+import {GcloudApp} from "./GcloudApp";
 import {GcloudDatastore} from "./GcloudDatastore";
 import {GcloudFunctions} from "./GcloudFunctions";
 import {GcloudLogging} from "./GcloudLogging";
@@ -19,26 +20,30 @@ export class Gcloud {
     }
 
     public functions() {
-        return new GcloudFunctions(this.project, "functions", this._options);
+        return new GcloudFunctions("functions", this.project, this._options);
     }
 
     public organizations() {
-        return new GcloudOrganizations(this.project, "organizations", this._options);
+        return new GcloudOrganizations( "organizations", this.project, this._options);
     }
 
     public projects() {
-        return new GcloudProjects(this.project, "projects", this._options);
+        return new GcloudProjects("projects", this.project, this._options);
+    }
+
+    public app() {
+        return new GcloudApp("app", this.project, this._options);
     }
 
     public logging() {
-        return new GcloudLogging(this.project, "logging", this._options);
+        return new GcloudLogging("logging", this.project, this._options);
     }
 
     public schedulerJobs() {
-        return new GcloudSchedulerJobs(this.project, "scheduler jobs", this._options);
+        return new GcloudSchedulerJobs("scheduler jobs", this.project, this._options);
     }
 
     public datastore() {
-        return new GcloudDatastore(this.project, "datastore", this._options);
+        return new GcloudDatastore("datastore", this.project, this._options);
     }
 }

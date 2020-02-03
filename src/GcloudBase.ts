@@ -7,8 +7,10 @@ const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 
 export class GcloudBase {
-    constructor(public readonly project: string,
-                public commandPrefix: string, public projectOptions: Partial<IProjectOptions>) {
+    constructor(
+                public commandPrefix: string,
+                public readonly project: string,
+                public projectOptions: Partial<IProjectOptions>) {
     }
 
     public async help() {
@@ -24,10 +26,11 @@ export class GcloudBase {
         return helper;
     }
 
-    protected async _exec(params: string[], argument: {[key: string]: any} = {}): Promise<string> {
+    protected async _exec(params: string[], argument: {[key: string]: any} = {}, postParams: string[] = []): Promise<string> {
         const helper = this._createChildProcessHelper();
         helper.addArgument(argument);
         helper.addParams(params);
+        helper.addPosParams(postParams);
         const result = await helper.exec();
         return result.stdout || result.stderr;
     }

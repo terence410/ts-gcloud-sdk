@@ -19,7 +19,7 @@ type IImportExportArgv = {
 
 export class GcloudDatastore extends GcloudBase {
     public indexes() {
-        return new GcloudDatastoreIndexes(this.project, "datastore indexes", this.projectOptions);
+        return new GcloudDatastoreIndexes("datastore indexes", this.project, this.projectOptions);
     }
 
     public async export(outputUrlPrefix: string, argument: IImportExportArgv) {

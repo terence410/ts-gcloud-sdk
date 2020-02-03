@@ -15,6 +15,7 @@
     "test:projects": "mocha --exit --timeout 120000 -r ts-node/register tests/projects.test.ts",
     "test:datastore": "mocha --exit --timeout 120000 -r ts-node/register tests/datastore.test.ts",
     "test:logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
+    "test:app": "mocha --exit --timeout 300000 -r ts-node/register tests/app.test.ts",
     "build": "tsc",
     "patch": "npm version patch"
   },
@@ -41,7 +42,9 @@
     "cloud functions",
     "cloud schedulers",
     "cloud projects",
-    "cloud organizations"
+    "cloud organizations",
+    "cloud datastore",
+    "cloud app"
   ],
   "repository": {
     "type": "git",

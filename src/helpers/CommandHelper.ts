@@ -10,6 +10,7 @@ export type IInteractive = {
 
 export class CommandHelper {
     public params: string[] = [];
+    public posParams: string[] = [];
     public arguments: string[] = [];
     public execOptions: object;
 
@@ -23,6 +24,14 @@ export class CommandHelper {
     public addParams(params: string[]) {
         for (const param of params) {
             this.params.push(param);
+        }
+
+        return this;
+    }
+
+    public addPosParams(params: string[]) {
+        for (const param of params) {
+            this.posParams.push(param);
         }
 
         return this;
@@ -70,8 +79,8 @@ export class CommandHelper {
     }
 
     public async exec(): Promise<{stdout: string, stderr: string}> {
-        const command = `${this.commandPath} ${this.params.concat(...this.arguments).join(" ")}`;
-        debug("exec", command);
+        const command = `${this.commandPath} ${this.params.concat(...this.arguments).concat(...this.posParams).join(" ")}`;
+        debug("exec:", command);
 
         const output = await new Promise<any>((resolve, reject) => {
             child_process.exec(command, this.execOptions,
@@ -97,7 +106,7 @@ export class CommandHelper {
             let stderr = "";
 
             const command = `${this.commandPath} ${this.params.join(" ")} ${this.arguments.join(" ")}`;
-            debug("execInteractive", command);
+            debug("execInteractive:", command);
             const spawn = child_process.spawn(command, [], this.execOptions);
 
             // if we need to pass something to stdin first

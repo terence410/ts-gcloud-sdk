@@ -12,6 +12,8 @@
         "max-classes-per-file": 3,
         "object-literal-sort-keys": false,
         "interface-over-type-literal": false,
+        "no-bitwise": false,
+        "max-line-length": [200],
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
     },
     "rulesDirectory": []
