@@ -27,23 +27,34 @@ type IEventTypesResult = {
     resourceOptional: string,
 };
 
-// argument
+// argv
 
 type IDeployArgv = {
     region: string,
+    allowUnauthenticated?: boolean,
     entryPoint?: string,
-    runtime?: string,
+    ignoreFile?: string,
     memory?: string,
     retry?: boolean,
+    runtime?: string,
+    serviceAccount?: string,
+    stageBucket?: string,
+    source?: string,
     timeout?: string,
-    maxInstances?: number,
-    clearMaxInstances?: boolean,
+    updateLabels?: object,
     clearEnvVars?: boolean,
-    setEnvVars?: string,
+    envVarsFile?: string,
+    setEnvVars?: string | object,
     removeEnvVars?: string,
-    updateEnvVars?: string,
-    triggerHttp?: boolean,
+    updateEnvVars?: string | object,
+    clearLabels?: boolean,
+    removeLabels?: string | string[],
+    clearMaxInstances?: boolean,
+    maxInstances?: number,
+    clearVpcConnector?: boolean,
+    vpcConnector?: string,
     triggerBucket?: string,
+    triggerHttp?: boolean,
     triggerTopic?: string,
     triggerEvent?: string,
     triggerResource?: string,
@@ -75,35 +86,40 @@ type IAddIamPolicyBindingArgv = {
 };
 
 export class GcloudFunctions extends GcloudBase {
+    public commandPrefix: string = "functions";
     public runtimes = runtimes;
     public memory = memory;
 
-    public async list(argument: IListArgv = {}) {
-        const table = await this._exec(["list"],  argument);
+    public async list(argv: IListArgv = {}) {
+        const table = await this._exec(["list"],  argv);
         const headers = ["name", "status", "trigger", "region"];
         return this._parseTable(table, headers) as IListResult[];
     }
 
-    public async deploy(name: string, argument: IDeployArgv) {
-        return await this._exec(["deploy", name], argument);
+    public async deploy(name: string, argv: IDeployArgv) {
+        return await this._exec(["deploy", name], argv);
     }
 
-    public async delete(name: string, argument: IDeleteArgv) {
+    public async delete(name: string, argv: IDeleteArgv) {
         const params: string[] = [];
-        return await this._exec(["delete", name], argument);
+        return await this._exec(["delete", name], argv);
     }
 
-    public async call(name: string, argument: ICallArgv) {
-        return await this._exec(["call", name], argument);
+    public async call(name: string, argv: ICallArgv) {
+        if (typeof argv.data === "object") {
+            argv.data = JSON.stringify(argv.data);
+        }
+
+        return await this._exec(["call", name], argv);
     }
 
-    public async addIamPolicyBinding(name: string, argument: IAddIamPolicyBindingArgv) {
-        return await this._exec(["add-iam-policy-binding", name], argument);
+    public async addIamPolicyBinding(name: string, argv: IAddIamPolicyBindingArgv) {
+        return await this._exec(["add-iam-policy-binding", name], argv);
     }
 
-    public async describe(name: string, argument: IDescribeArgv): Promise<string | undefined> {
+    public async describe(name: string, argv: IDescribeArgv): Promise<string | undefined> {
         try {
-            return await this._exec(["describe", name], argument);
+            return await this._exec(["describe", name], argv);
         } catch (err) {
             return;
         }

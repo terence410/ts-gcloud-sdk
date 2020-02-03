@@ -29,6 +29,8 @@ type ISetTrafficArgv = {
 };
 
 export class GcloudAppServices extends GcloudBase {
+    public commandPrefix: string = "app services";
+
     public async list(argv: IListArgv = {}) {
         const table = await this._exec(["list"], argv);
         const headers = ["service", "numVersions"];

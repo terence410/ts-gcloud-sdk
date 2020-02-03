@@ -10,7 +10,7 @@ type IListResult = {
     state: string,
 };
 
-// argument
+// argv
 
 type ICreateOrUpdateArgv = {
     schedule?: string,
@@ -47,31 +47,33 @@ type IListArgv = {
 };
 
 export class GcloudSchedulerJobs extends GcloudBase {
-    public async list(argument: IListArgv = {}) {
-        const table = await this._exec(["list"], argument);
+    public commandPrefix: string = "scheduler jobs";
+
+    public async list(argv: IListArgv = {}) {
+        const table = await this._exec(["list"], argv);
         const headers = ["id", "location", "schedule", "targetType", "state"];
         return this._parseTable(table, headers) as IListResult[];
     }
 
-    public async createHttp(name: string, argument: ICreateArgv = {}) {
-        return await this._exec(["create", "http", name], argument);
+    public async createHttp(name: string, argv: ICreateArgv = {}) {
+        return await this._exec(["create", "http", name], argv);
     }
 
-    public async updateHttp(name: string, argument: IUpdateArgv = {}) {
-        return await this._exec(["update", "http", name], argument);
+    public async updateHttp(name: string, argv: IUpdateArgv = {}) {
+        return await this._exec(["update", "http", name], argv);
     }
 
     // helper
-    public async createOrUpdateHttp(name: string, argument: ICreateOrUpdateArgv = {}) {
+    public async createOrUpdateHttp(name: string, argv: ICreateOrUpdateArgv = {}) {
         try {
-            return await this.createHttp(name, argument);
+            return await this.createHttp(name, argv);
         } catch (err) {
             if (!err.message.match(/ALREADY_EXISTS|already exists/i)) {
                 throw err;
             }
         }
 
-        return await this.updateHttp(name, argument);
+        return await this.updateHttp(name, argv);
     }
 
     public async delete(name: string) {

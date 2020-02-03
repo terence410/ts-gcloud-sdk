@@ -2,48 +2,65 @@ import {httpMethods} from "./enums/httpMethods";
 import {regions} from "./enums/regions";
 import {timeZones} from "./enums/timeZones";
 import {GcloudApp} from "./GcloudApp";
+import {GcloudBase} from "./GcloudBase";
+import {GcloudBuilds} from "./GcloudBuilds";
 import {GcloudDatastore} from "./GcloudDatastore";
 import {GcloudFunctions} from "./GcloudFunctions";
 import {GcloudLogging} from "./GcloudLogging";
 import {GcloudOrganizations} from "./GcloudOrganizations";
 import {GcloudProjects} from "./GcloudProjects";
+import {GcloudRun} from "./GcloudRun";
+import {GcloudRunDomainMappings} from "./GCloudRun/GcloudRunDomainMappings";
 import {GcloudSchedulerJobs} from "./GcloudSchedulerJobs";
 import {IProjectOptions} from "./GcloudSdk";
+import Instance = WebAssembly.Instance;
 
 export class Gcloud {
     public regions = regions;
     public timeZones = timeZones;
     public httpMethods = httpMethods;
 
-    constructor(public readonly project: string, private _options: Partial<IProjectOptions> = {}) {
+    constructor(public readonly project: string, public projectOptions: Partial<IProjectOptions> = {}) {
 
+    }
+
+    public extend<T extends typeof GcloudBase>(productType: T): InstanceType<T> {
+        return new productType(this.project, this.projectOptions) as InstanceType<T>;
+    }
+
+    public builds() {
+        return this.extend(GcloudBuilds);
     }
 
     public functions() {
-        return new GcloudFunctions("functions", this.project, this._options);
+        return this.extend(GcloudFunctions);
     }
 
     public organizations() {
-        return new GcloudOrganizations( "organizations", this.project, this._options);
+        return this.extend(GcloudOrganizations);
     }
 
     public projects() {
-        return new GcloudProjects("projects", this.project, this._options);
+        return this.extend(GcloudProjects);
     }
 
     public app() {
-        return new GcloudApp("app", this.project, this._options);
+        return this.extend(GcloudApp);
+    }
+
+    public run() {
+        return this.extend(GcloudRun);
     }
 
     public logging() {
-        return new GcloudLogging("logging", this.project, this._options);
+        return this.extend(GcloudLogging);
     }
 
     public schedulerJobs() {
-        return new GcloudSchedulerJobs("scheduler jobs", this.project, this._options);
+        return this.extend(GcloudSchedulerJobs);
     }
 
     public datastore() {
-        return new GcloudDatastore("datastore", this.project, this._options);
+        return this.extend(GcloudDatastore);
     }
 }

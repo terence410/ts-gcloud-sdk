@@ -20,6 +20,8 @@ type ITailArgv = {
 type IReadArgv = ITailArgv & {limit?: number};
 
 export class GcloudAppLogs extends GcloudBase {
+    public commandPrefix: string = "app logs";
+
     public async read(argv: IReadArgv = {}) {
         return await this._exec(["read"], argv);
     }

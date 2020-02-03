@@ -15,8 +15,8 @@ type IListArgv = {
     pageSize?: number,
 };
 
-export class GcloudAppDomainMappings extends GcloudBase {
-    public commandPrefix: string = "app domain-mappings";
+export class GcloudRunDomainMappings extends GcloudBase {
+    public commandPrefix: string = "run domain-mappings";
 
     public async list() {
         return await this._exec(["list"]);

@@ -1,16 +1,24 @@
 import Debug from "debug";
 import {IProjectOptions} from "./GcloudSdk";
 import {GcloudCommandHelper} from "./helpers/GcloudCommandHelper";
-import {camelToDash, camelToSnakeCapitalize, escapeQuotes} from "./utils";
+import {camelToDash, camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore} from "./utils";
 
 const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
+type ParseTableOptions = {
+    isSplitBySpace?: boolean,
+    capitalizeWithoutUnderscore?: boolean,
+    characterOffset?: number,
+};
 
 export class GcloudBase {
-    constructor(
-                public commandPrefix: string,
-                public readonly project: string,
-                public projectOptions: Partial<IProjectOptions>) {
+    public commandPrefix: string = "";
+
+    constructor( public readonly project: string, public projectOptions: Partial<IProjectOptions>) {
+    }
+
+    public extend<T extends typeof GcloudBase>(productType: T): InstanceType<T> {
+        return new productType(this.project, this.projectOptions) as InstanceType<T>;
     }
 
     public async help() {
@@ -35,7 +43,7 @@ export class GcloudBase {
         return result.stdout || result.stderr;
     }
 
-    protected _parseTable(table: string, headers?: string[], isSplitBySpace = false) {
+    protected _parseTable(table: string, headers?: string[], options: ParseTableOptions = {}) {
         const rows = table.trim().split(/\r?\n/);
         let list: any[] = [];
 
@@ -44,14 +52,19 @@ export class GcloudBase {
                 const headerRow = rows[0];
                 const indexes: number[] = [];
                 for (const header of headers) {
-                    const snakeHeader = camelToSnakeCapitalize(header);
+                    const snakeHeader = options.capitalizeWithoutUnderscore ?
+                        camelToSnakeCapitalizeWithoutUnderscore(header) :
+                        camelToSnakeCapitalize(header);
                     indexes.push(headerRow.indexOf(snakeHeader));
                 }
 
-                for (const line of rows.slice(1)) {
+                for (let line of rows.slice(1)) {
                     const listResult: any = {};
+                    if (options.characterOffset) {
+                        line = line.slice(options.characterOffset);
+                    }
                     
-                    if (isSplitBySpace) {
+                    if (options.isSplitBySpace) {
                         const lines = line.split(/[ ]+/);
                         headers.map((header, index) => {
                             listResult[header] = lines[index];

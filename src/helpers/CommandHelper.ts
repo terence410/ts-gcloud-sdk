@@ -53,20 +53,20 @@ export class CommandHelper {
                             stringValue = stringValue.replace("&", "^&");
                         }
 
-                        const quotedValue = `"${stringValue}"`;
+                        const quotedValue = `"${escapeQuotes(stringValue)}"`;
                         this.arguments.push(quotedValue);
 
                     } else if (typeof value === "number") {
                         this.arguments.push(value.toString());
 
                     } else if (typeof value === "object") {
-                        let objectValue = JSON.stringify(value);
-                        if (process.platform === "win32") {
-                            objectValue = objectValue.replace("&", "^&");
-                        }
-
-                        const quotedValue = `"${escapeQuotes(objectValue)}"`;
-                        this.arguments.push(quotedValue);
+                        const resultValue = Object.entries(value).map(([objectKey, objectValue]) => {
+                            if (process.platform === "win32") {
+                                objectValue = (objectValue as any).toString().replace("&", "^&");
+                            }
+                            return `${objectKey}=${escapeQuotes(objectValue as any)}`;
+                        }).join(",");
+                        this.arguments.push(resultValue);
 
                     } else {
                         // do nothing

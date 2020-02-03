@@ -16,6 +16,8 @@ type IListArgv = {
 };
 
 export class GcloudDatastoreIndexes extends GcloudBase {
+    public commandPrefix: string = "datastore indexes";
+
     public async create(filename: string) {
         const params: string[] = [];
         return await this._exec(["create", filename]);

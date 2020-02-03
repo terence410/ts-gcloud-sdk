@@ -18,16 +18,18 @@ type IImportExportArgv = {
 };
 
 export class GcloudDatastore extends GcloudBase {
+    public commandPrefix: string = "datastore";
+
+    public async export(outputUrlPrefix: string, argv: IImportExportArgv) {
+        return await this._exec(["export", outputUrlPrefix], argv);
+    }
+
+    public async import(outputUrlPrefix: string, argv: IImportExportArgv = {}) {
+        return await this._exec(["import", outputUrlPrefix], argv);
+    }
+
     public indexes() {
-        return new GcloudDatastoreIndexes("datastore indexes", this.project, this.projectOptions);
-    }
-
-    public async export(outputUrlPrefix: string, argument: IImportExportArgv) {
-        return await this._exec(["export", outputUrlPrefix], argument);
-    }
-
-    public async import(outputUrlPrefix: string, argument: IImportExportArgv = {}) {
-        return await this._exec(["import", outputUrlPrefix], argument);
+        return this.extend(GcloudDatastoreIndexes);
     }
 
 }

@@ -7,6 +7,7 @@ import {GcloudAppInstances} from "./GcloudApp/GcloudAppInstances";
 import {GcloudAppLogs} from "./GcloudApp/GcloudAppLogs";
 import {GcloudAppServices} from "./GcloudApp/GcloudAppServices";
 import {GcloudBase} from "./GcloudBase";
+import {GcloudDatastoreIndexes} from "./GcloudDatastore/GcloudDatastoreIndexes";
 
 type IRegionsListResult = {
     region: string,
@@ -14,7 +15,7 @@ type IRegionsListResult = {
     supportsFlexible: string,
 };
 
-// argv
+// argument
 
 type IBrowseArgv = {
     launchBrowser?: boolean,
@@ -42,49 +43,52 @@ export type IServiceArgv = {
 };
 
 export class GcloudApp extends GcloudBase {
-    public async browse(argv: IBrowseArgv = {}) {
-        return await this._exec(["browse"], argv);
+    public commandPrefix: string = "app";
+
+    public async browse(argument: IBrowseArgv = {}) {
+        return await this._exec(["browse"], argument);
     }
 
-    public async create(argv: ICreateArgv) {
-        return await this._exec(["create"], argv);
+    public async create(argument: ICreateArgv) {
+        return await this._exec(["create"], argument);
     }
 
     public async describe() {
         return await this._exec(["describe"]);
     }
 
-    public async deploy(argv: IDeployArgv = {}) {
-        return await this._exec(["deploy"], argv);
+    public async deploy(argument: IDeployArgv = {}) {
+        return await this._exec(["deploy"], argument);
     }
 
-    public async openConsole(argv: IServiceArgv) {
-        return await this._exec(["open-console"], argv);
-    }
-
-    public logs() {
-        return new GcloudAppLogs("app logs", this.project, this.projectOptions);
-    }
-
-    public instances() {
-        return new GcloudAppInstances("app instances", this.project, this.projectOptions);
-    }
-
-    public domainMappings() {
-        return new GcloudAppDomainMappings("app domain-mappings", this.project, this.projectOptions);
-    }
-
-    public firewallRules() {
-        return new GcloudAppFirewallRules("app firewall-rules", this.project, this.projectOptions);
-    }
-
-    public services() {
-        return new GcloudAppServices("app services", this.project, this.projectOptions);
+    public async openConsole(argument: IServiceArgv) {
+        return await this._exec(["open-console"], argument);
     }
 
     public async regions() {
         const table = await this._exec(["regions list"]);
         const headers = ["region", "supportsStandard", "supportsFlexible"];
-        return this._parseTable(table, headers, true) as IRegionsListResult[];
+        return this._parseTable(table, headers, {isSplitBySpace: true}) as IRegionsListResult[];
     }
+
+    public logs() {
+        return this.extend(GcloudAppLogs);
+    }
+
+    public instances() {
+        return this.extend(GcloudAppInstances);
+    }
+
+    public domainMappings() {
+        return this.extend(GcloudAppDomainMappings);
+    }
+
+    public firewallRules() {
+        return this.extend(GcloudAppFirewallRules);
+    }
+
+    public services() {
+        return this.extend(GcloudAppServices);
+    }
+
 }

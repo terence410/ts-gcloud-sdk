@@ -48,7 +48,7 @@ describe("gcloud functions", () => {
                 runtime: functions.runtimes.nodejs8,
                 region,
                 memory: functions.memory.M128,
-                setEnvVars: "name=gcp",
+                setEnvVars: {name: "gcp", FOO: "foo", BAR: "bar"},
             });
         console.log("deploy", deploy);
 

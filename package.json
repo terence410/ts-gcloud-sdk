@@ -16,6 +16,7 @@
     "test:datastore": "mocha --exit --timeout 120000 -r ts-node/register tests/datastore.test.ts",
     "test:logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
     "test:app": "mocha --exit --timeout 300000 -r ts-node/register tests/app.test.ts",
+    "test:run": "mocha --exit --timeout 300000 -r ts-node/register tests/run.test.ts",
     "build": "tsc",
     "patch": "npm version patch"
   },

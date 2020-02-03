@@ -16,6 +16,8 @@ type IListArgv = {
 };
 
 export class GcloudProjects extends GcloudBase {
+    public commandPrefix = "projects";
+
     public async list(argv: IListArgv = {}) {
         const table = await this._exec(["list"], argv);
         const headers = ["projectId", "name", "projectNumber"];

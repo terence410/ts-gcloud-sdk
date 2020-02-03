@@ -22,6 +22,8 @@ type IListArgv = {
 };
 
 export class GcloudAppInstances extends GcloudBase {
+    public commandPrefix: string = "app instances";
+
     public async list(argv: IListArgv = {}) {
         const table = await this._exec(["list"], argv);
         const headers = ["service", "version", "id", "vmStatus", "debugMode"];
