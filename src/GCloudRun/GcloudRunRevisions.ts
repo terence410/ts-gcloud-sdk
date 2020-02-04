@@ -1,7 +1,7 @@
 // https://cloud.google.com/sdk/gcloud/reference/datastore/
 
 import {GcloudBase} from "../GcloudBase";
-import {IRunArgv} from "../GcloudRun";
+import {IGkeArgv, IManagedArgv} from "../GcloudRun";
 import {IStandardListArgv} from "../types";
 
 type IListResult = {
@@ -14,29 +14,39 @@ type IListResult = {
 
 // argv
 
-type IListArgv = IRunArgv & IStandardListArgv & {
-    service?: string,
-    cluster?: string,
-    clusterLocation?: string,
-    context?: string,
-    kubeconfig?: string,
-};
+type IManagedListArgv = IManagedArgv & {service?: string} & IStandardListArgv;
+type IGkeListArgv = IGkeArgv & {service?: string} & IStandardListArgv;
 
 export class GcloudRunRevisions extends GcloudBase {
     public commandPrefix: string = "run revisions";
 
-    public async list(argv: IListArgv) {
+    public async listManaged(argv: IManagedListArgv ) {
         const table = await this._exec(["list"], argv);
         const headers = ["revision", "active", "service", "deployed", "deployedBy"];
         return this._parseTable(table, headers,
             {capitalizeWithoutUnderscore: true}) as IListResult[];
     }
 
-    public async describe(serviceName: string, argv: IRunArgv) {
+    public async listGke(argv: IGkeListArgv ) {
+        const table = await this._exec(["list"], argv);
+        const headers = ["revision", "active", "service", "deployed", "deployedBy"];
+        return this._parseTable(table, headers,
+            {capitalizeWithoutUnderscore: true}) as IListResult[];
+    }
+
+    public async describeManaged(serviceName: string, argv: IManagedArgv) {
         return await this._exec(["describe", serviceName], argv);
     }
 
-    public async delete(revisionName: string, argv: IRunArgv) {
-        return await this._exec(["delete", revisionName], argv);
+    public async describeGke(serviceName: string, argv: IGkeArgv) {
+        return await this._exec(["describe", serviceName], argv);
+    }
+
+    public async deleteManaged(serviceName: string, argv: IManagedArgv) {
+        return await this._exec(["delete", serviceName], argv);
+    }
+
+    public async deleteGke(serviceName: string, argv: IGkeArgv) {
+        return await this._exec(["delete", serviceName], argv);
     }
 }

@@ -63,23 +63,26 @@ export class GcloudBase {
                         camelToSnakeCapitalize(header);
                     indexes.push(headerRow.indexOf(snakeHeader));
                 }
-                
-                for (const line of rows.slice(1)) {
-                    const listResult: any = {};
-                    if (options.isSplitBySpace) {
-                        const lines = line.split(/[ ]+/);
-                        headers.map((header, index) => {
-                            listResult[header] = lines[index];
-                        });
-                        list.push(listResult);
 
-                    } else {
-                        headers.map((header, index) => {
-                            const x0 = indexes[index];
-                            const x1 = index + 1 < indexes.length ? indexes[index + 1] - x0 : undefined;
-                            listResult[header] = line.substr(x0, x1).trim();
-                        });
-                        list.push(listResult);
+                // if we found header
+                if (indexes.some(x => x >= 0)) {
+                    for (const line of rows.slice(1)) {
+                        const listResult: any = {};
+                        if (options.isSplitBySpace) {
+                            const lines = line.split(/[ ]+/);
+                            headers.map((header, index) => {
+                                listResult[header] = lines[index];
+                            });
+                            list.push(listResult);
+
+                        } else {
+                            headers.map((header, index) => {
+                                const x0 = indexes[index];
+                                const x1 = index + 1 < indexes.length ? indexes[index + 1] - x0 : undefined;
+                                listResult[header] = line.substr(x0, x1).trim();
+                            });
+                            list.push(listResult);
+                        }
                     }
                 }
             } else {

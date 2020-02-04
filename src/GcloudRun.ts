@@ -5,19 +5,29 @@ import {GcloudBase} from "./GcloudBase";
 import {GcloudRunDomainMappings} from "./GCloudRun/GcloudRunDomainMappings";
 import {GcloudRunRevisions} from "./GCloudRun/GcloudRunRevisions";
 import {GcloudRunServices} from "./GCloudRun/GcloudRunServices";
+import {IStandardListArgv} from "./types";
 
 // argv
 
-export type IRunArgv = {
-    region: string,
-    platform: "managed" | "gke" | "kubernetes",
+export type IManagedArgv = {
+    platform: "managed";
+    region?: string;
+};
+
+export type IGkeArgv = {
+    platform: "gke";
+    namespace: string,
+    cluster: string,
+    clusterLocation: string,
+    context?: string,
+    kubeconfig?: string,
 };
 
 type IDeployArgv = {
-    region: string,
+    region?: string,
     image: string,
     platform: "managed" | "gke" | "kubernetes",
-    namespace?: string,
+    namespace?: "default" | "kube-system" | "kube-public" | "gke-system" | "knative-serving",
     args?: string | string [],
     async?: boolean,
     command?: string,
