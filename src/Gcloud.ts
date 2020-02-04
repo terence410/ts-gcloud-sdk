@@ -2,6 +2,7 @@ import {httpMethods} from "./enums/httpMethods";
 import {regions} from "./enums/regions";
 import {timeZones} from "./enums/timeZones";
 import {GcloudApp} from "./GcloudApp";
+import {GcloudAuth} from "./GcloudAuth";
 import {GcloudBase} from "./GcloudBase";
 import {GcloudBuilds} from "./GcloudBuilds";
 import {GcloudDatastore} from "./GcloudDatastore";
@@ -26,6 +27,10 @@ export class Gcloud {
 
     public extend<T extends typeof GcloudBase>(productType: T): InstanceType<T> {
         return new productType(this.project, this.projectOptions) as InstanceType<T>;
+    }
+
+    public auth() {
+        return this.extend(GcloudAuth);
     }
 
     public builds() {

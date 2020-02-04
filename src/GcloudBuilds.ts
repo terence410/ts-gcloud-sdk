@@ -12,6 +12,59 @@ type IListResult = {
     status: string,
 };
 
+type IDescribeResult = {
+    artifacts?: { images: string[] },
+    createTime: string,
+    finishTime: string,
+    id: string,
+    images?: string[],
+    logUrl: string,
+    logsBucket: string,
+    options: {
+        logStreamingOption?: string,
+        logging: string
+        substitutionOption?: string,
+    },
+    projectId: string,
+    results: {
+        buildStepImages: string[],
+        images?: Array<{ digest: string, name: string, pushTiming: { startTime: string, endTime: string } }>,
+        buildStepOutputs: string[],
+    },
+    source?: {
+        storageSource: { bucket: string, generation: string, object: string },
+    },
+    sourceProvenance: {
+        fileHashes?: object,
+        resolvedStorageSource?: { bucket: string, generation: string, object: string },
+    },
+    startTime: string,
+    status: string,
+    steps: Array<{
+        args: string[],
+        name: string,
+        pullTiming: { startTime: string, endTime: string },
+        status: string,
+        timing: { startTime: string, endTime: string },
+    }>,
+    substitutions: object,
+    timeout: string,
+    timing: {
+        BUILD: {
+            endTime: string,
+            startTime: string,
+        },
+        FETCHSOURCE?: {
+            endTime: string,
+            startTime: string,
+        },
+        PUSH?: {
+            endTime: string,
+            startTime: string,
+        },
+    },
+};
+
 // argv
 
 type ISubmitArgv = {
@@ -38,7 +91,8 @@ export class GcloudBuilds extends GcloudBase {
     }
 
     public async describe(buildName: string) {
-        return await this._exec(["describe", buildName]);
+        const result = await this._exec(["describe", buildName]);
+        return this._parseYaml(result) as IDescribeResult;
     }
 
     public async cancel(buildNames: string | string[]) {

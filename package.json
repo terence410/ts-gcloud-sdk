@@ -22,7 +22,9 @@
   },
   "dependencies": {
     "debug": "^4.1.1",
-    "@types/debug": "^4.1.5"
+    "@types/debug": "^4.1.5",
+    "yaml": "^1.7.2",
+    "@types/yaml": "^1.2.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
@@ -32,7 +34,8 @@
     "chai": "^4.2.0",
     "mocha": "^6.2.1",
     "ts-node": "^8.4.1",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "axios": "^0.19.2"
   },
   "author": "Terence",
   "keywords": [

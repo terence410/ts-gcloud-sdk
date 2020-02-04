@@ -1,14 +1,15 @@
 import Debug from "debug";
+import YAML from "yaml";
 import {IProjectOptions} from "./GcloudSdk";
 import {GcloudCommandHelper} from "./helpers/GcloudCommandHelper";
-import {camelToDash, camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore} from "./utils";
+import {camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore} from "./utils";
 
 const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 type ParseTableOptions = {
     isSplitBySpace?: boolean,
     capitalizeWithoutUnderscore?: boolean,
-    characterOffset?: number,
+    contentOffset?: number,
 };
 
 export class GcloudBase {
@@ -43,8 +44,13 @@ export class GcloudBase {
         return result.stdout || result.stderr;
     }
 
+    protected _parseYaml(yaml: string) {
+        return YAML.parse(yaml);
+    }
+
     protected _parseTable(table: string, headers?: string[], options: ParseTableOptions = {}) {
-        const rows = table.trim().split(/\r?\n/);
+        const contentOffset = options.contentOffset || 0;
+        const rows = table.trimRight().split(/\r?\n/).slice(contentOffset);
         let list: any[] = [];
 
         if (rows.length) {
@@ -57,13 +63,9 @@ export class GcloudBase {
                         camelToSnakeCapitalize(header);
                     indexes.push(headerRow.indexOf(snakeHeader));
                 }
-
-                for (let line of rows.slice(1)) {
+                
+                for (const line of rows.slice(1)) {
                     const listResult: any = {};
-                    if (options.characterOffset) {
-                        line = line.slice(options.characterOffset);
-                    }
-                    
                     if (options.isSplitBySpace) {
                         const lines = line.split(/[ ]+/);
                         headers.map((header, index) => {

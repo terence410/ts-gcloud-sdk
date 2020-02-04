@@ -1,5 +1,6 @@
 // https://cloud.google.com/sdk/gcloud/reference/run/
 
+import {memory} from "./enums/run/memory";
 import {GcloudBase} from "./GcloudBase";
 import {GcloudRunDomainMappings} from "./GCloudRun/GcloudRunDomainMappings";
 import {GcloudRunRevisions} from "./GCloudRun/GcloudRunRevisions";
@@ -17,11 +18,12 @@ type IDeployArgv = {
     image: string,
     platform: "managed" | "gke" | "kubernetes",
     namespace?: string,
-    args?: string,
-    async?: string,
-    command?: boolean,
-    concurrency?: boolean,
-    maxInstances?: boolean,
+    args?: string | string [],
+    async?: boolean,
+    command?: string,
+    concurrency?: number,
+    maxInstances?: number,
+    memory?: string,
     port?: number,
     timeout?: string,
     clearEnvVars?: boolean,
@@ -50,6 +52,7 @@ type IDeployArgv = {
 
 export class GcloudRun extends GcloudBase {
     public commandPrefix: string = "run";
+    public memory = memory;
 
     public async deploy(serviceName: string, argv: IDeployArgv) {
         return await this._exec(["deploy", serviceName], argv);

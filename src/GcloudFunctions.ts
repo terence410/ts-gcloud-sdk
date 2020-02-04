@@ -27,6 +27,34 @@ type IEventTypesResult = {
     resourceOptional: string,
 };
 
+type IDeployResult = {
+    availableMemoryMb: string,
+    entryPoint: string,
+    environmentVariables: object,
+    httpsTrigger: {
+        url: string,
+        ingressSettings: string,
+    },
+    labels: object,
+    name: string,
+    runtime: string,
+    serviceAccountEmail: string,
+    sourceUploadUrl: string,
+    status: string,
+    timeout: string
+    updateTime: string,
+    versionId: string,
+};
+
+type IGetIamPolicyResult = {
+    bindings: Array<{
+        members: string[],
+        role: string,
+    }>,
+    etag: string,
+    version: number,
+};
+
 // argv
 
 type IDeployArgv = {
@@ -60,7 +88,7 @@ type IDeployArgv = {
     triggerResource?: string,
 };
 
-type IDeleteArgv = {
+type IDefaultArgv = {
     region: string,
 };
 
@@ -79,8 +107,8 @@ type ICallArgv = {
     data?: string | object,
 };
 
-type IAddIamPolicyBindingArgv = {
-    region?: string,
+type IIamPolicyBindingArgv = {
+    region: string,
     member: "allUsers" | string,
     role: "roles/cloudfunctions.invoker" | string,
 };
@@ -97,10 +125,11 @@ export class GcloudFunctions extends GcloudBase {
     }
 
     public async deploy(name: string, argv: IDeployArgv) {
-        return await this._exec(["deploy", name], argv);
+        const result = await this._exec(["deploy", name], argv);
+        return this._parseYaml(result) as IDeployResult;
     }
 
-    public async delete(name: string, argv: IDeleteArgv) {
+    public async delete(name: string, argv: IDefaultArgv) {
         const params: string[] = [];
         return await this._exec(["delete", name], argv);
     }
@@ -113,7 +142,16 @@ export class GcloudFunctions extends GcloudBase {
         return await this._exec(["call", name], argv);
     }
 
-    public async addIamPolicyBinding(name: string, argv: IAddIamPolicyBindingArgv) {
+    public async getIamPolicy(name: string, argv: IDefaultArgv) {
+        const result = await this._exec(["get-iam-policy", name], argv);
+        return this._parseYaml(result) as IGetIamPolicyResult;
+    }
+
+    public async removeIamPolicyBinding(name: string, argv: IIamPolicyBindingArgv) {
+        return await this._exec(["remove-iam-policy-binding", name], argv);
+    }
+
+    public async addIamPolicyBinding(name: string, argv: IIamPolicyBindingArgv) {
         return await this._exec(["add-iam-policy-binding", name], argv);
     }
 
