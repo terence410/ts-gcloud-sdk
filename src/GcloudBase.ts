@@ -2,13 +2,12 @@ import Debug from "debug";
 import YAML from "yaml";
 import {IProjectOptions} from "./GcloudSdk";
 import {GcloudCommandHelper} from "./helpers/GcloudCommandHelper";
-import {camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore} from "./utils";
+import {camelToDotCapitalize, camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore} from "./utils";
 
 const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
 type ParseTableOptions = {
     isSplitBySpace?: boolean,
-    capitalizeWithoutUnderscore?: boolean,
     contentOffset?: number,
 };
 
@@ -58,10 +57,21 @@ export class GcloudBase {
                 const headerRow = rows[0];
                 const indexes: number[] = [];
                 for (const header of headers) {
-                    const snakeHeader = options.capitalizeWithoutUnderscore ?
-                        camelToSnakeCapitalizeWithoutUnderscore(header) :
-                        camelToSnakeCapitalize(header);
-                    indexes.push(headerRow.indexOf(snakeHeader));
+                    const tryHeaders = [
+                        camelToSnakeCapitalize(header),
+                        camelToSnakeCapitalizeWithoutUnderscore(header),
+                        camelToDotCapitalize(header),
+                    ];
+
+                    let tryIndex = -1;
+                    for (const tryHeader of tryHeaders) {
+                        tryIndex = headerRow.indexOf(tryHeader);
+                        if (tryIndex >= 0) {
+                            break;
+                        }
+                    }
+
+                    indexes.push(tryIndex);
                 }
 
                 // if we found header

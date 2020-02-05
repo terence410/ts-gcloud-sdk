@@ -1,21 +1,20 @@
-// https://cloud.google.com/sdk/gcloud/reference/datastore/
+// https://cloud.google.com/sdk/gcloud/reference/app/services
 
 import {GcloudBase} from "../GcloudBase";
+import {IStandardListArgv} from "../types";
 
 type IListResult = {
     service: string,
     numVersions: string,
 };
 
-// argv
-
-type IListArgv = {
-    filter?: string,
-    limit?: number,
-    pageSize?: number,
-    sortBy?: string,
-    uri?: boolean,
+type IDescribeResult = {
+    id: string,
+    name: string,
+    split: { allocations: {[key: string]: number} },
 };
+
+// argv
 
 type IBrowseArgv = {
     launchBrowser?: boolean,
@@ -31,24 +30,23 @@ type ISetTrafficArgv = {
 export class GcloudAppServices extends GcloudBase {
     public commandPrefix: string = "app services";
 
-    public async list(argv: IListArgv = {}) {
+    public async list(argv: IStandardListArgv = {}) {
         const table = await this._exec(["list"], argv);
         const headers = ["service", "numVersions"];
         return this._parseTable(table, headers) as IListResult[];
     }
 
     public async describe(service: string) {
-        return await this._exec(["describe", service]);
+        const result = await this._exec(["describe", service]);
+        return this._parseYaml(result);
     }
 
-    public async delete(services: string | string[]) {
-        const values = Array.isArray(services) ? services.join(" ") : services;
-        return await this._exec(["delete", values]);
+    public async delete(service: string) {
+        return await this._exec(["delete", service]);
     }
 
-    public async browse(services: string, argv: IBrowseArgv = {}) {
-        const values = Array.isArray(services) ? services.join(" ") : services;
-        return await this._exec(["browse", values], argv);
+    public async browse(service: string, argv: IBrowseArgv = {}) {
+        return await this._exec(["browse", service], argv);
     }
 
     public async setTraffic(services: string, argv: ISetTrafficArgv): Promise<any>;

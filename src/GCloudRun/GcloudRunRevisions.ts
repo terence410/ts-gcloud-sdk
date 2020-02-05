@@ -23,15 +23,13 @@ export class GcloudRunRevisions extends GcloudBase {
     public async listManaged(argv: IManagedListArgv ) {
         const table = await this._exec(["list"], argv);
         const headers = ["revision", "active", "service", "deployed", "deployedBy"];
-        return this._parseTable(table, headers,
-            {capitalizeWithoutUnderscore: true}) as IListResult[];
+        return this._parseTable(table, headers) as IListResult[];
     }
 
     public async listGke(argv: IGkeListArgv ) {
         const table = await this._exec(["list"], argv);
         const headers = ["revision", "active", "service", "deployed", "deployedBy"];
-        return this._parseTable(table, headers,
-            {capitalizeWithoutUnderscore: true}) as IListResult[];
+        return this._parseTable(table, headers) as IListResult[];
     }
 
     public async describeManaged(serviceName: string, argv: IManagedArgv) {

@@ -1,15 +1,16 @@
-import {verify} from "crypto";
 import {config} from "dotenv";
 config();
 import "mocha";
 import {GcloudSdk} from "../src/GcloudSdk";
 
+const options = {clientEmail: process.env.GCP_CLIENT_EMAIL, cwd: "./tests/app"};
+const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME, options);
+const serviceName = "testing";
+
 describe("gcloud app", () => {
     it("full test", async () => {
-        const options = {clientEmail: process.env.GCP_CLIENT_EMAIL, cwd: "./tests/app"};
-        const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
+        const gcloud = await gcloudSdk.init();
         const app = gcloud.app();
-        const serviceName = "testing";
 
         // help
         const help = await app.help();
@@ -17,7 +18,13 @@ describe("gcloud app", () => {
 
         try {
             const create = await app.create({region: gcloud.regions.asiaEast2});
-            console.log("create", create);
+        } catch (err) {
+            // ignore error
+        }
+
+        // remove existing services
+        try {
+            await await app.services().delete(serviceName);
         } catch (err) {
             // ignore error
         }
@@ -36,10 +43,11 @@ describe("gcloud app", () => {
         console.log("firewallRulesList", firewallRulesList);
 
         const services = app.services();
-        const servicesList = await services.list();
-        for (const service of servicesList) {
-            const serviceDescribe = await services.describe(service.service);
-            console.log("services.item", service, serviceDescribe);
+        const serviceList = await services.list();
+        for (const serviceItem of serviceList) {
+            const serviceDescribe = await services.describe(serviceItem.service);
+            console.log(serviceItem);
+            console.log(serviceDescribe);
         }
 
         // split traffic
@@ -57,12 +65,15 @@ describe("gcloud app", () => {
             }
         }
 
+        // this will create a new instances
         const browse = await app.browse({service: serviceName});
         console.log("browse", browse);
 
-        // seems not work
-        // const logsTail = await app.logs().tail({service: serviceName});
-        // console.log("logs", logsTail);
+        // remove all versions
+        const versionList =  await app.versions().list({service: serviceName});
+        for (const versionItem of versionList) {
+            const versionDescribe = await app.versions().describe(versionItem.versionId, {service: versionItem.service});
+        }
 
         // delete service
         await app.services().delete(serviceName);

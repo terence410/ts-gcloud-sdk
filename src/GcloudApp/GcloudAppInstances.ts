@@ -1,6 +1,5 @@
 // https://cloud.google.com/sdk/gcloud/reference/datastore/
 
-import {IServiceArgv} from "../GcloudApp";
 import {GcloudBase} from "../GcloudBase";
 
 type IListResult = {
@@ -12,6 +11,11 @@ type IListResult = {
 };
 
 // argv
+
+type IDefaultArgv = {
+    service: string,
+    version: string,
+};
 
 type IListArgv = {
     filter?: string,
@@ -30,23 +34,23 @@ export class GcloudAppInstances extends GcloudBase {
         return this._parseTable(table, headers) as IListResult[];
     }
 
-    public async describe(instance: string, argv: IServiceArgv) {
+    public async describe(instance: string, argv: IDefaultArgv) {
         return await this._exec(["describe", instance], argv);
     }
 
-    public async enableDebug(instance: string, argv: IServiceArgv) {
+    public async enableDebug(instance: string, argv: IDefaultArgv) {
         return await this._exec(["enableDebug", instance], argv);
     }
 
-    public async disableDebug(instance: string, argv: IServiceArgv) {
+    public async disableDebug(instance: string, argv: IDefaultArgv) {
         return await this._exec(["disableDebug", instance], argv);
     }
 
-    public async ssh(instance: string, command: string, argv: IServiceArgv) {
+    public async ssh(instance: string, command: string, argv: IDefaultArgv) {
         return await this._exec(["ssh", instance], argv, ["-- " + command]);
     }
 
-    public async delete(instance: string, argv: IServiceArgv) {
+    public async delete(instance: string, argv: IDefaultArgv) {
         return await this._exec(["delete", instance], argv);
     }
 }

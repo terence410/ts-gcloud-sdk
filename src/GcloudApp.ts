@@ -6,6 +6,7 @@ import {GcloudAppFirewallRules} from "./GcloudApp/GcloudAppFirewallRules";
 import {GcloudAppInstances} from "./GcloudApp/GcloudAppInstances";
 import {GcloudAppLogs} from "./GcloudApp/GcloudAppLogs";
 import {GcloudAppServices} from "./GcloudApp/GcloudAppServices";
+import {GcloudAppVersions} from "./GcloudApp/GcloudAppVersions";
 import {GcloudBase} from "./GcloudBase";
 import {GcloudDatastoreIndexes} from "./GcloudDatastore/GcloudDatastoreIndexes";
 
@@ -15,16 +16,35 @@ type IRegionsListResult = {
     supportsFlexible: string,
 };
 
+type IDescribeResult = {
+    authDomain: string,
+    codeBucket: string,
+    databaseType: string,
+    defaultBucket: string,
+    defaultHostname: string,
+    featureSettings: { splitHealthChecks: boolean, useContainerOptimizedOs: boolean },
+    gcrDomain: string,
+    id: string,
+    locationId: string,
+    name: string,
+    servingStatus: string,
+};
+
 // argument
+
+type IDefaultArgv = {
+    service: string,
+    version: string,
+};
+
+type ICreateArgv = {
+    region: string,
+};
 
 type IBrowseArgv = {
     launchBrowser?: boolean,
     service?: string,
     version?: string,
-};
-
-type ICreateArgv = {
-    region: string,
 };
 
 type IDeployArgv = {
@@ -35,11 +55,6 @@ type IDeployArgv = {
     noPromote?: boolean,
     stopPreviousVersion?: boolean,
     version?: string,
-};
-
-export type IServiceArgv = {
-    service: string,
-    version: string,
 };
 
 export class GcloudApp extends GcloudBase {
@@ -54,14 +69,15 @@ export class GcloudApp extends GcloudBase {
     }
 
     public async describe() {
-        return await this._exec(["describe"]);
+        const result = await this._exec(["describe"]);
+        return this._parseYaml(result) as IDescribeResult;
     }
 
     public async deploy(argument: IDeployArgv = {}) {
         return await this._exec(["deploy"], argument);
     }
 
-    public async openConsole(argument: IServiceArgv) {
+    public async openConsole(argument: IDefaultArgv) {
         return await this._exec(["open-console"], argument);
     }
 
@@ -89,6 +105,10 @@ export class GcloudApp extends GcloudBase {
 
     public services() {
         return this.extend(GcloudAppServices);
+    }
+
+    public versions() {
+        return this.extend(GcloudAppVersions);
     }
 
 }

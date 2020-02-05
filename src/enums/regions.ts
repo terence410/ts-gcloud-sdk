@@ -23,4 +23,3 @@ export const regions = {
     usWest1: "us-west1", // The Dalles, Oregon, USA
     usWest2: "us-west2", // Los Angeles, California, USA
 };
-

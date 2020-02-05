@@ -1,12 +1,6 @@
-// https://cloud.google.com/sdk/gcloud/reference/datastore/
+// https://cloud.google.com/sdk/gcloud/reference/app/logs/
 
 import {GcloudBase} from "../GcloudBase";
-
-type IListResult = {
-    projectId: string,
-    name: string,
-    projectNumber: string,
-};
 
 // argv
 
@@ -26,7 +20,8 @@ export class GcloudAppLogs extends GcloudBase {
         return await this._exec(["read"], argv);
     }
 
-    public async tail(argv: ITailArgv = {}) {
-        return await this._exec(["tail"], argv);
-    }
+    // Not supported
+    // public async tail(argv: ITailArgv = {}) {
+    //     return await this._exec(["tail"], argv);
+    // }
 }
