@@ -62,7 +62,7 @@ export class CommandHelper {
                     } else if (typeof value === "object") {
                         const resultValue = Object.entries(value).map(([objectKey, objectValue]) => {
                             if (process.platform === "win32") {
-                                objectValue = (objectValue as any).toString().replace("&", "^&");
+                                objectValue = (objectValue as any).toString().replace(/&/g, "^&");
                             }
                             return `${objectKey}=${escapeQuotes(objectValue as any)}`;
                         }).join(",");

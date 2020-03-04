@@ -9,9 +9,6 @@ describe("gcloud projects", () => {
         const gcloud = await new GcloudSdk(process.env.GCP_PROJECT_NAME, options).init();
         const projects = gcloud.projects();
 
-        const help = await projects.help();
-        // console.log("help", help);
-
         const list = await projects.list();
         const promises: any[] = [];
         for (const item of list) {
