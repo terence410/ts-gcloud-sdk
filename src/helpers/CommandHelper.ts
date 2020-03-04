@@ -50,7 +50,7 @@ export class CommandHelper {
                     if (typeof value === "string") {
                         let stringValue = value;
                         if (process.platform === "win32") {
-                            stringValue = stringValue.replace("&", "^&");
+                            stringValue = stringValue.replace(/&/g, "^&");
                         }
 
                         const quotedValue = `"${escapeQuotes(stringValue)}"`;
