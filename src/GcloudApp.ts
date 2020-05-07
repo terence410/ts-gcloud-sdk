@@ -54,6 +54,7 @@ type IDeployArgv = {
     promote?: boolean,
     noPromote?: boolean,
     stopPreviousVersion?: boolean,
+    noStopPreviousVersion?: boolean,
     version?: string,
 };
 
@@ -73,8 +74,8 @@ export class GcloudApp extends GcloudBase {
         return this._parseYaml(result) as IDescribeResult;
     }
 
-    public async deploy(argument: IDeployArgv = {}) {
-        return await this._exec(["deploy"], argument);
+    public async deploy(yamlFile: string, argument: IDeployArgv = {}) {
+        return await this._exec(["deploy", yamlFile], argument);
     }
 
     public async openConsole(argument: IDefaultArgv) {

@@ -4,6 +4,7 @@ import "mocha";
 import {GcloudSdk} from "../src/GcloudSdk";
 
 const options = {clientEmail: process.env.GCP_CLIENT_EMAIL, cwd: "./tests/app"};
+const projectId = process.env.GCP_PROJECT_NAME;
 const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME, options);
 const serviceName = "testing";
 
@@ -24,14 +25,15 @@ describe("gcloud app", () => {
 
         // remove existing services
         try {
-            await await app.services().delete(serviceName);
+            await app.services().delete(serviceName);
         } catch (err) {
+            console.log(err.message);
             // ignore error
         }
 
         // deploy two versions
-        const deploy1 = await app.deploy({version: "v1"});
-        const deploy2 = await app.deploy({version: "v2"});
+        const deploy1 = await app.deploy("app.yaml", {version: "v1", noStopPreviousVersion: true});
+        const deploy2 = await app.deploy("app.yaml", {version: "v2", noStopPreviousVersion: true});
 
         const describe = await app.describe();
         console.log("describe", describe);

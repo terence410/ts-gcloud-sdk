@@ -2,13 +2,22 @@ const express = require('express');
 const app = express();
 
 app.get('/', async (req, res) => {
-    res.send('Hello from App Engine!');
+    res.send('<pre>' + JSON.stringify(process.env, null, 2) + '</pre>');
 
     let total = 30;
     for (let i = 0; i < total; i++) {
         await new Promise(resolve => setTimeout(resolve, 1000 * i));
         console.log("app engine", i, new Date());
     }
+});
+
+
+app.get('/exit', async (req, res) => {
+    res.send("exit");
+
+    setImmediate(() => {
+        process.exit(1);
+    })
 });
 
 // Listen to the App Engine-specified port, or 8080 otherwise
