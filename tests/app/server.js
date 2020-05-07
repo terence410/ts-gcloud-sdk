@@ -1,5 +1,17 @@
 const express = require('express');
+const redis = require('redis');
 const app = express();
+
+const REDISHOST = process.env.REDISHOST || 'localhost';
+const REDISPORT = process.env.REDISPORT || 6378;
+
+const client = redis.createClient(REDISPORT, REDISHOST);
+client.on('error', (err) => console.error('ERR:REDIS:', err));
+
+
+app.get('/redis', async (req, res) => {
+    res.send('<pre>' + JSON.stringify(client.server_info, null, 2) + '</pre>');
+});
 
 app.get('/', async (req, res) => {
     res.send('<pre>' + JSON.stringify(process.env, null, 2) + '</pre>');
@@ -19,6 +31,8 @@ app.get('/exit', async (req, res) => {
         process.exit(1);
     })
 });
+
+
 
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8080;

@@ -9,6 +9,12 @@ const gcloudSdk = new GcloudSdk(process.env.GCP_PROJECT_NAME, options);
 const serviceName = "testing";
 
 describe("gcloud app", () => {
+    it.only("deply", async () => {
+        const gcloud = await gcloudSdk.init();
+        const app = gcloud.app();
+        const deploy1 = await app.deploy("app.yaml", {version: "v1"});
+    });
+
     it("full test", async () => {
         const gcloud = await gcloudSdk.init();
         const app = gcloud.app();
