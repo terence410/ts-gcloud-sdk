@@ -18,10 +18,12 @@ type IListArgv = {
 };
 
 export class GcloudOrganizations extends GcloudBase {
+    public commandPrefix: string = "organizations";
+
     public async list(argv: IListArgv = {}) {
         const table = await this._exec(["list"], argv);
         const headers = ["displayName", "id", "directoryCustomerId"];
-        return this._parseTable(table, headers, true) as IListResult[];
+        return this._parseTable(table, headers, {isSplitBySpace: true}) as IListResult[];
     }
 
     public async describe(name: string) {

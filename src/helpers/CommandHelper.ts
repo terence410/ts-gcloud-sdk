@@ -10,6 +10,7 @@ export type IInteractive = {
 
 export class CommandHelper {
     public params: string[] = [];
+    public posParams: string[] = [];
     public arguments: string[] = [];
     public execOptions: object;
 
@@ -28,6 +29,14 @@ export class CommandHelper {
         return this;
     }
 
+    public addPosParams(params: string[]) {
+        for (const param of params) {
+            this.posParams.push(param);
+        }
+
+        return this;
+    }
+
     public addArgument(argument: {[key: string]: any}) {
         for (const [name, value] of Object.entries(argument)) {
             const argumentName = `--${camelToDash(name)}`;
@@ -41,23 +50,23 @@ export class CommandHelper {
                     if (typeof value === "string") {
                         let stringValue = value;
                         if (process.platform === "win32") {
-                            stringValue = stringValue.replace("&", "^&");
+                            stringValue = stringValue.replace(/&/g, "^&");
                         }
 
-                        const quotedValue = `"${stringValue}"`;
+                        const quotedValue = `"${escapeQuotes(stringValue)}"`;
                         this.arguments.push(quotedValue);
 
                     } else if (typeof value === "number") {
                         this.arguments.push(value.toString());
 
                     } else if (typeof value === "object") {
-                        let objectValue = JSON.stringify(value);
-                        if (process.platform === "win32") {
-                            objectValue = objectValue.replace("&", "^&");
-                        }
-
-                        const quotedValue = `"${escapeQuotes(objectValue)}"`;
-                        this.arguments.push(quotedValue);
+                        const resultValue = Object.entries(value).map(([objectKey, objectValue]) => {
+                            if (process.platform === "win32") {
+                                objectValue = (objectValue as any).toString().replace(/&/g, "^&");
+                            }
+                            return `${objectKey}=${escapeQuotes(objectValue as any)}`;
+                        }).join(",");
+                        this.arguments.push(resultValue);
 
                     } else {
                         // do nothing
@@ -70,8 +79,8 @@ export class CommandHelper {
     }
 
     public async exec(): Promise<{stdout: string, stderr: string}> {
-        const command = `${this.commandPath} ${this.params.concat(...this.arguments).join(" ")}`;
-        debug("exec", command);
+        const command = `${this.commandPath} ${this.params.concat(...this.arguments).concat(...this.posParams).join(" ")}`;
+        debug("exec:", command);
 
         const output = await new Promise<any>((resolve, reject) => {
             child_process.exec(command, this.execOptions,
@@ -97,7 +106,7 @@ export class CommandHelper {
             let stderr = "";
 
             const command = `${this.commandPath} ${this.params.join(" ")} ${this.arguments.join(" ")}`;
-            debug("execInteractive", command);
+            debug("execInteractive:", command);
             const spawn = child_process.spawn(command, [], this.execOptions);
 
             // if we need to pass something to stdin first

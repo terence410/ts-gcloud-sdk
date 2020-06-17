@@ -1,44 +1,85 @@
 import {httpMethods} from "./enums/httpMethods";
 import {regions} from "./enums/regions";
 import {timeZones} from "./enums/timeZones";
+import {zones} from "./enums/zones";
+import {GcloudApp} from "./GcloudApp";
+import {GcloudAuth} from "./GcloudAuth";
+import {GcloudBase} from "./GcloudBase";
+import {GcloudBuilds} from "./GcloudBuilds";
+import {GcloudComponents} from "./GcloudComponents";
+import {GcloudContainer} from "./GcloudContainer";
 import {GcloudDatastore} from "./GcloudDatastore";
 import {GcloudFunctions} from "./GcloudFunctions";
 import {GcloudLogging} from "./GcloudLogging";
 import {GcloudOrganizations} from "./GcloudOrganizations";
 import {GcloudProjects} from "./GcloudProjects";
+import {GcloudRun} from "./GcloudRun";
 import {GcloudSchedulerJobs} from "./GcloudSchedulerJobs";
 import {IProjectOptions} from "./GcloudSdk";
+import {GcloudServices} from "./GcloudServices";
 
 export class Gcloud {
     public regions = regions;
+    public zones = zones;
     public timeZones = timeZones;
     public httpMethods = httpMethods;
 
-    constructor(public readonly project: string, private _options: Partial<IProjectOptions> = {}) {
+    constructor(public readonly project: string, public projectOptions: Partial<IProjectOptions> = {}) {
 
     }
 
-    public functions() {
-        return new GcloudFunctions(this.project, "functions", this._options);
+    public extend<T extends typeof GcloudBase>(productType: T): InstanceType<T> {
+        return new productType(this.project, this.projectOptions) as InstanceType<T>;
     }
 
-    public organizations() {
-        return new GcloudOrganizations(this.project, "organizations", this._options);
+    public app() {
+        return this.extend(GcloudApp);
     }
 
-    public projects() {
-        return new GcloudProjects(this.project, "projects", this._options);
+    public auth() {
+        return this.extend(GcloudAuth);
     }
 
-    public logging() {
-        return new GcloudLogging(this.project, "logging", this._options);
+    public builds() {
+        return this.extend(GcloudBuilds);
     }
 
-    public schedulerJobs() {
-        return new GcloudSchedulerJobs(this.project, "scheduler jobs", this._options);
+    public components() {
+        return this.extend(GcloudComponents);
+    }
+    public container() {
+        return this.extend(GcloudContainer);
     }
 
     public datastore() {
-        return new GcloudDatastore(this.project, "datastore", this._options);
+        return this.extend(GcloudDatastore);
+    }
+
+    public functions() {
+        return this.extend(GcloudFunctions);
+    }
+
+    public logging() {
+        return this.extend(GcloudLogging);
+    }
+
+    public organizations() {
+        return this.extend(GcloudOrganizations);
+    }
+
+    public projects() {
+        return this.extend(GcloudProjects);
+    }
+
+    public run() {
+        return this.extend(GcloudRun);
+    }
+
+    public schedulerJobs() {
+        return this.extend(GcloudSchedulerJobs);
+    }
+
+    public services() {
+        return this.extend(GcloudServices);
     }
 }

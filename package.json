@@ -1,6 +1,6 @@
 {
   "name": "ts-gcloud-sdk",
-  "version": "0.1.9",
+  "version": "0.1.12",
   "description": "Google Cloud SDK functional wrapper written in TypeScript. Useful for automation and integration.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -15,12 +15,16 @@
     "test:projects": "mocha --exit --timeout 120000 -r ts-node/register tests/projects.test.ts",
     "test:datastore": "mocha --exit --timeout 120000 -r ts-node/register tests/datastore.test.ts",
     "test:logging": "mocha --exit --timeout 120000 -r ts-node/register tests/logging.test.ts",
+    "test:app": "mocha --exit --timeout 300000 -r ts-node/register tests/app.test.ts",
+    "test:run": "mocha --exit --timeout 300000 -r ts-node/register tests/run.test.ts",
     "build": "tsc",
     "patch": "npm version patch"
   },
   "dependencies": {
     "debug": "^4.1.1",
-    "@types/debug": "^4.1.5"
+    "@types/debug": "^4.1.5",
+    "yaml": "^1.7.2",
+    "@types/yaml": "^1.2.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
@@ -30,7 +34,8 @@
     "chai": "^4.2.0",
     "mocha": "^6.2.1",
     "ts-node": "^8.4.1",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "axios": "^0.19.2"
   },
   "author": "Terence",
   "keywords": [
@@ -41,7 +46,9 @@
     "cloud functions",
     "cloud schedulers",
     "cloud projects",
-    "cloud organizations"
+    "cloud organizations",
+    "cloud datastore",
+    "cloud app"
   ],
   "repository": {
     "type": "git",
