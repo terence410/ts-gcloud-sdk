@@ -3,10 +3,10 @@ config();
 import "mocha";
 import {Gcloud} from "../src";
 import {IGkeArgv, IManagedArgv} from "../src/GcloudRun";
-import {GcloudSdk} from "../src/GcloudSdk";
+import {GcloudSdk, IProjectOptions} from "../src/GcloudSdk";
 
 const projectId = process.env.GCP_PROJECT_NAME;
-const options = {clientEmail: process.env.GCP_CLIENT_EMAIL, cwd: "./tests/run"};
+const options: Partial<IProjectOptions> = {clientEmail: process.env.GCP_CLIENT_EMAIL, cwd: "./tests/run", beta: true};
 const gcloudSDK = new GcloudSdk(projectId, options);
 let gcloud!: Gcloud;
 
@@ -44,6 +44,11 @@ describe("gcloud run", () => {
             memory: run.memory.M128,
             concurrency: 100,
             maxInstances: 50,
+            // setSecrets: {
+            //     TEST_ONE: "SECRET_ONE:latest",
+            //     TEST_TWO: "SECRET_TWO:latest"
+            // },
+            // serviceAccount: process.env.GCP_CLIENT_EMAIL,
         });
 
         const argv: IManagedArgv = {platform, region};

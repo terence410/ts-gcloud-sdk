@@ -38,8 +38,12 @@ type IDeployArgv = {
     timeout?: string,
     clearEnvVars?: boolean,
     setEnvVars?: string | object,
-    removeEnvVars?: string | object,
+    removeEnvVars?: string | string[],
     updateEnvVars?: string | object,
+    clearSecrets?: boolean,
+    setSecrets?: string | object,
+    removeSecrets?: string | string[],
+    updateSecrets?: string | object,
     clearLabels?: boolean,
     removeLabels?: string[] | string,
     labels?: string | object,
@@ -61,7 +65,7 @@ type IDeployArgv = {
 };
 
 export class GcloudRun extends GcloudBase {
-    public commandPrefix: string = "run";
+    public commandPrefix: string = `${this.projectOptions.beta ? 'beta ' : ''}run`;
     public memory = memory;
 
     public async deploy(serviceName: string, argv: IDeployArgv) {

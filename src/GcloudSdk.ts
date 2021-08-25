@@ -11,6 +11,7 @@ export type IProjectOptions = {
     clientEmail: string;
     useInteractiveLogin: boolean,
     keyFilename: string,
+    beta?: boolean;
 };
 
 export class GcloudSdk {
