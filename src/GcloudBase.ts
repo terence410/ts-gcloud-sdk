@@ -2,7 +2,7 @@ import Debug from "debug";
 import YAML from "yaml";
 import {IProjectOptions} from "./GcloudSdk";
 import {GcloudCommandHelper} from "./helpers/GcloudCommandHelper";
-import {camelToDotCapitalize, camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore} from "./utils";
+import {camelToDotCapitalize, camelToSnakeCapitalize, camelToSnakeCapitalizeWithoutUnderscore, stripAnsi} from "./utils";
 
 const debug = Debug("gcloud");
 const sdkPath = process.env.GCP_SDK_PATH || "gcloud";
@@ -40,7 +40,7 @@ export class GcloudBase {
         helper.addParams(params);
         helper.addPosParams(postParams);
         const result = await helper.exec();
-        return result.stdout || result.stderr;
+        return stripAnsi(result.stdout || result.stderr);
     }
 
     protected _parseYaml(yaml: string) {
